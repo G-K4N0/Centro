@@ -23,7 +23,7 @@ import Registro from "./routes/Registro.js";
 import privilegio from "./routes/Privilegio.js";
 
 const app = express();
-const PORT = process.env.port || 8000;
+const PORT = process.env.PORT || 8080;
 
 app.use(cookieParser());
 app.use(cors());
