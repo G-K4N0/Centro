@@ -1,10 +1,19 @@
+import Privilegio from "../models/Privilegio.js";
 import userModel from "../models/Usuario.js"
 import bcrypt from 'bcryptjs';
 
 
 export const getAllUsers= async (req,res)=>{
     try {
-        const users = await userModel.findAll();
+        const users = await userModel.findAll({
+            attributes:['id','name','nickname','password','imageUrl'],
+            include:[
+                {
+                    model: Privilegio,
+                    attributes:['name']
+                }
+            ]
+        });
         res.json(users);
     } catch (error) {
         res.json({message: error.message});
@@ -14,11 +23,18 @@ export const getAllUsers= async (req,res)=>{
 export const getUser = async (req, res) => {
     try {
         const user = await userModel.findAll({
+            attributes:['id','name','nickname','password','imageUrl'],
             where:{
                 id:req.params.id
-            }
+            },
+            include:[
+                {
+                    model: Privilegio,
+                    attributes:['name']
+                }
+            ]
         });
-        res.json(user[0]);
+        res.json(user);
     } catch (error) {
         res.json({message:error.message});
     }

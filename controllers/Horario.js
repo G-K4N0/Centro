@@ -22,7 +22,7 @@ export const getAllTimes = async (req, res) => {
 export const getTimes = async (req,res) => {
     try {
         const data = await Horario.findAll({
-            attributes:['id','timeInit','TimeEnd', 'day'],
+            attributes:['id','timeInit','timeEnd', 'day'],
             include: [
                 {
                     model: Materia,
