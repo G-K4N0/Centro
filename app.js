@@ -55,7 +55,7 @@ async function main() {
 		await db.sync()
 		app.listen(PORT, () => {
 			console.log(`Escuchando en el puerto ${PORT}`);
-		  });	
+		});	
 	} catch (error) {
 		console.error('No se puede conectar a la base de datos => ', error)
 	}
