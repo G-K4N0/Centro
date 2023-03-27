@@ -1,99 +1,139 @@
 import Privilegio from "../models/Privilegio.js";
 import userModel from "../models/Usuario.js"
+import { uploadImage, deleteImage } from '../libs/cloudinary.js'
+import fs from 'fs-extra'
 import bcrypt from 'bcryptjs';
 
 
-export const getAllUsers= async (req,res)=>{
-    try {
-        const users = await userModel.findAll({
-            attributes:['id','name','nickname','password','imageUrl'],
-            include:[
-                {
-                    model: Privilegio,
-                    attributes:['name']
-                }
-            ]
-        });
-        res.json(users);
-    } catch (error) {
-        res.json({message: error.message});
-    }
-}
+export const getAllUsers = async (req, res) => {
+  try {
+    const page = parseInt(req.query.page || 1);
+    const pageSize = parseInt(req.query.pageSize || 10);
+
+    const offset = (page - 1) * pageSize;
+
+    const users = await userModel.findAll({
+      limit: pageSize,
+      offset
+    });
+
+    res.json(users);
+  } catch (error) {
+    console.error(`Error en getAllUsers: ${error.message}`);
+    res.status(500).json({
+      error: `Error en getAllUsers: ${error.message}`
+    });
+  }
+};
 
 export const getUser = async (req, res) => {
     try {
-        const user = await userModel.findAll({
-            attributes:['id','name','nickname','password','imageUrl'],
-            where:{
-                id:req.params.id
-            },
-            include:[
-                {
-                    model: Privilegio,
-                    attributes:['name']
-                }
-            ]
+      const userId = req.params.id;
+      const user = await userModel.findOne({
+        where: { id: userId }
+      });
+      
+      if (!user) {
+        return res.status(404).json({
+          error: `Usuario con ID ${userId} no encontrado`
         });
-        res.json(user);
+      }
+  
+      res.json(user);
     } catch (error) {
-        res.json({message:error.message});
+      console.error(`Error en getUser: ${error.message}`);
+      res.status(500).json({
+        error: `Error en User: ${error.message}`
+      });
     }
-}
+  };
+  
 
 export const createUser = async (req, res) =>{
     try {
-
-        const user_name = req.body.name;
-        const user_nickname = req.body.nickname;
-        const user_password = req.body.password;
-        const user_privileges = req.body.privileges;
-        let passhash = await bcrypt.hash(user_password,8);
-        await userModel.create({
-            name:user_name,
-            nickname:user_nickname,
-            password:passhash,
-            privileges:user_privileges
-    });
-        res.json(
-            {
-                "message":"Usuario creado"
-            });
+      const user_name = req.body.name;
+      const user_nickname = req.body.nickname;
+      const user_password = req.body.password;
+      const user_privileges = req.body.privileges;
+  
+      let imagen;
+      if (req.files.image) {
+        const result = await uploadImage(req.files.image.tempFilePath);
+        await fs.remove(req.files.image.tempFilePath);
+        imagen = {
+          url: result.secure_url,
+          public_id: result.public_id
+        };
+      }
+      
+      let passhash = await bcrypt.hash(user_password,8);
+      await userModel.create({
+        name: user_name,
+        nickname: user_nickname,
+        password: passhash,
+        privileges: user_privileges,
+        imageUrl: imagen
+      });
+  
+      res.json({ "message": "Usuario creado" });
     } catch (error) {
-        res.json({"message": error.message});
+      res.json({ "message": error.message });
     }
-}
+  };
 
-export const updateUser = async (req, res) => {
-    try {
-        await userModel.update(req.body,{
-            where: 
-            {
-                id:req.params.id
-            }
-            
-        });
-        res.json(
-            {
-                "message":"Usuario actualizado"
-            });
-    } catch (error) {
-        res.json({message:error.message});
+  export const updateUser = async (req, res) => {
+  try {
+    const id = req.params.id;
+
+    const userToUpdate = await userModel.findByPk(id);
+
+    Object.assign(userToUpdate, req.body);
+
+    if (req.files && req.files.image) {
+      const result = await uploadImage(req.files.image.tempFilePath);
+      await fs.remove(req.files.image.tempFilePath);
+      userToUpdate.imageUrl = {
+        url: result.secure_url,
+        public_id: result.public_id
+      };
     }
-}
+
+    await userToUpdate.save();
+
+    res.json({ "message": "Usuario actualizado" });
+  } catch (error) {
+    res.json({ message: error.message });
+  }
+};
 
 export const deleteUser = async (req, res) => {
     try {
-        await userModel.destroy({
-            where:
-            {
-                id:req.params.id
-            }
+      const user = await userModel.findByPk(req.params.id);
+      if (!user) {
+        return res.status(404).json({
+          error: 'El usuario no existe'
         });
-        res.json(
-            {
-                "message":"Usuario eliminado"
-            });
+      }
+      
+      const dataImage = JSON.parse(user.dataValues.imageUrl)
+      
+      if(dataImage.public_id){
+        
+        await deleteImage(dataImage.public_id)
+      }
+      await userModel.destroy({
+        where: {
+          id: req.params.id
+        }
+      });
+  
+      res.json({
+        message: 'Usuario eliminado'
+      });
     } catch (error) {
-        res.json({message:error.message});
+      console.error(`Error en deleteUser: ${error.message}`);
+      res.status(500).json({
+        error: `Error en deleteUser: ${error.message}`
+      });
     }
-}
+  };

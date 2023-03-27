@@ -1,6 +1,7 @@
 import express from "express";
 import cors from "cors";
 import db from "./database/db.js";
+import fileUpload from 'express-fileupload'
 import  dotenv from 'dotenv';
 dotenv.config({ path: './.env'});
 
@@ -29,6 +30,10 @@ app.use(cookieParser());
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+app.use(fileUpload({
+	useTempFiles: true,
+	tempFileDir: './upload'
+}))
 
 app.use("/careers", verifyToken, careerRoutes);
 app.use("/groups", verifyToken, groupRoutes);
