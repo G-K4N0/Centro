@@ -116,11 +116,8 @@ export const deleteUser = async (req, res) => {
       }
       
       const dataImage = JSON.parse(user.dataValues.imageUrl)
-      
-      if(dataImage.public_id){
-        
-        await deleteImage(dataImage.public_id)
-      }
+      dataImage.public_id && await deleteImage(dataImage.public_id)
+
       await userModel.destroy({
         where: {
           id: req.params.id
