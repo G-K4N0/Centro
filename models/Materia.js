@@ -22,7 +22,7 @@ Materia.hasMany(Horario,{
 })
 
 Horario.belongsTo(Materia,{
-  foreignKey: 'idGroup',
+  foreignKey: 'idTopic',
     targetId:'id'
 })
 
