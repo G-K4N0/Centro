@@ -52,5 +52,5 @@ jobs:
         with:
           app-name: 'centroapi'
           slot-name: 'Production'
-          publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_996148BABC8D4902A3CDB52BDDE1ED62 }}
+          publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_E4859DB44F994C3A94A7FC675045C728 }}
           package: .
