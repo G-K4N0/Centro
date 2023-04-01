@@ -57,17 +57,40 @@ export const login = async (req, res) => {
 
 export const verifyToken = async(req, res, next) => {
 
-    const autHeader = req.headers['authorization'];
-    const token = autHeader && autHeader.split(' ')[1];
+  const authHeader = req.headers['authorization'];
+  const token = authHeader && authHeader.split(' ')[1];
 
-    if (token == null)
-        return res.status(401).send('Inicia sesión');
-    jwt.verify(token,process.env.JWT_SECRET,(err,user)=>{
-        if(err) return res.status(403).send("Acceso denegado");
+  if (token == null)
+      return res.status(401).send('Inicia sesión');
 
-        req.user = user;
-        next();
-    });
+  jwt.verify(token, process.env.JWT_SECRET, async (err, decoded) => {
+      if (err) {
+          return res.status(403).send('Acceso denegado');
+      } else {
+          const user = await Usuario.findOne({ where: { id: decoded.id } });
+          if (!user) {
+              return res.status(403).send('Acceso denegado');
+          }
+          req.user = user;
+
+          if (user.privileges === 'Administrador') {
+              next();
+          } else if (user.role === 'Docente') {
+              next();
+          } else {
+              return res.status(403).send('Acceso denegado');
+          }
+      }
+  });
+}
+
+export function isAdmin(req, res, next) {
+  const user = req.user;
+  if (!user.privileges.Administrador) {
+    return res.status(403).send('No tiene permiso para acceder a esta ruta.');
+  }
+
+  next();
 }
 
 export const logout = (req,res) =>{

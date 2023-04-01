@@ -14,7 +14,13 @@ export const getAllUsers = async (req, res) => {
 
     const users = await userModel.findAll({
       limit: pageSize,
-      offset
+      offset,
+      include:[
+        {
+          model:Privilegio,
+          attributes: ['name']
+        }
+      ]
     });
 
     res.json(users);
@@ -30,7 +36,13 @@ export const getUser = async (req, res) => {
     try {
       const userId = req.params.id;
       const user = await userModel.findOne({
-        where: { id: userId }
+        where: { id: userId },
+        include:[
+          {
+            model:Privilegio,
+            attributes: ['name']
+          }
+        ]
       });
       
       if (!user) {
@@ -56,7 +68,7 @@ export const createUser = async (req, res) =>{
       const user_password = req.body.password;
       const user_privileges = req.body.privileges;
   
-      let imagen;
+      let imagen = ''
       if (req.files.image) {
         const result = await uploadImage(req.files.image.tempFilePath);
         await fs.remove(req.files.image.tempFilePath);

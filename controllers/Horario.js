@@ -5,19 +5,48 @@ import Materia from '../models/Materia.js';
 import Usuario from '../models/Usuario.js';
 import Semestre from '../models/Semestre.js';
 import Carrera from '../models/Carrera.js';
-export const getAllTimes = async (req, res) => {
+export const getTimesbyDocentes = async (req, res) => {
     try {
-        const horarios = await Horario.findAll({
-            attributes:['id','timeInit','timeEnd','day']
+        const userId = req.params.userId;
+        const data = await Horario.findAll({
+            where: {
+                idUser: userId
+            },
+            attributes: ['id', 'timeInit', 'timeEnd', 'day'],
+            include: [
+                {
+                    model: Materia,
+                    attributes: ['name']
+                },
+                {
+                    model: Grupo,
+                    attributes: ['name'],
+                    include: [
+                        {
+                            model: Semestre,
+                            attributes: ['semester']
+                        },
+                        {
+                            model: Carrera,
+                            attributes: ['name']
+                        }
+                    ]
+                },
+                {
+                    model: Lab,
+                    attributes: ['name', 'status']
+                },
+                {
+                    model: Usuario,
+                    attributes: ['name', 'imageUrl']
+                }
+            ]
         });
-
-        res.json(horarios);
+        res.json(data);
     } catch (error) {
-        res.json({
-            "message": error.message
-        });
+        res.json(error.message);
     }
-}
+};
 
 export const getTimes = async (req,res) => {
     try {

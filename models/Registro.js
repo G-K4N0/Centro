@@ -26,6 +26,11 @@ const Registro = db.define('registro',{
     idSemestre:{
         type:DataTypes.SMALLINT,
         allowNull:false
+    },
+    actividad:{
+        type:DataTypes.STRING,
+        allowNull:false,
+        defaultValue: 'Clase'
     }
 },{
     freezeTableName:true

@@ -35,18 +35,18 @@ app.use(fileUpload({
 	tempFileDir: './upload'
 }))
 
-app.use("/careers", verifyToken, careerRoutes);
-app.use("/groups", verifyToken, groupRoutes);
+app.use("/carreras", verifyToken, careerRoutes);
+app.use("/grupos", verifyToken, groupRoutes);
 app.use("/labs", verifyToken, labRoutes);
-app.use("/mods", verifyToken, modRoutes);
-app.use("/phases", verifyToken, phaseRoutes);
+app.use("/modalidades", verifyToken, modRoutes);
+app.use("/fases", verifyToken, phaseRoutes);
 app.use("/",privilegio)
-app.use("/reports", reportRoutes);
-app.use("/semesters", verifyToken, semesterRoutes);
+app.use("/reportes", reportRoutes);
+app.use("/semestres", verifyToken, semesterRoutes);
 app.use("/", timeRoutes);
-app.use("/topics", verifyToken, topicRoutes);
-app.use("/types", verifyToken, typeRoutes);
-app.use("/users", verifyToken, userRoutes);
+app.use("/materias", verifyToken, topicRoutes);
+app.use("/tipos", verifyToken, typeRoutes);
+app.use("/usuarios", verifyToken, userRoutes);
 app.use("/registro",Registro)
 app.use("/", login);
 
