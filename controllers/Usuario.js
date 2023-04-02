@@ -69,13 +69,12 @@ export const createUser = async (req, res) =>{
       const user_privileges = req.body.privileges;
   
       let imagen = ''
+      let imagenPublicId = ''
       if (req.files.image) {
         const result = await uploadImage(req.files.image.tempFilePath);
         await fs.remove(req.files.image.tempFilePath);
-        imagen = {
-          url: result.secure_url,
-          public_id: result.public_id
-        };
+        imagen = result.secure_url
+        imagenPublicId = result.public_id
       }
       
       let passhash = await bcrypt.hash(user_password,8);
@@ -84,7 +83,8 @@ export const createUser = async (req, res) =>{
         nickname: user_nickname,
         password: passhash,
         privileges: user_privileges,
-        imageUrl: imagen
+        image: imagen,
+        imagenPublicId: imagePublicId
       });
   
       res.json({ "message": "Usuario creado" });
