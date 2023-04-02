@@ -27,11 +27,8 @@ const Usuario = db.define('usuario',{
         allowNull:false
     },
     image:{
-        type: {
-            url: String,
-            public_id: String
-          },
-          default: null
+        type: DataTypes.JSON,
+        defaultValue: null
     }
 },{
     freezeTableName:true,
