@@ -1,5 +1,5 @@
 import express from 'express';
-import { createTime, deleteTime, getAllTimes, getTime, getTimes, updateTime } from '../controllers/Horario.js';
+import { createTime, deleteTime, getTimesbyDocentes, getTime, getTimes, updateTime } from '../controllers/Horario.js';
 const timeRoute = express.Router();
 import { verifyToken } from '../controllers/authController.js';
 
