@@ -13,16 +13,16 @@ export const login = async (req, res) => {
     return res.status(400).json({ errors: errors.array() });
   }
 
-  const { nickname, password } = req.body;
+  const { user, password } = req.body;
 
   try {
     const user = await Usuario.findOne({
-      attributes: ['id', 'name','nickname', 'password','imageUrl'],
+      attributes: ['id', 'name','user', 'password','image'],
       include: [{
         model: Privilegio,
         attributes: ['name']
       }],
-      where: { nickname }
+      where: { user }
     });
 
     if (!user) {
@@ -34,10 +34,10 @@ export const login = async (req, res) => {
       return res.status(401).json({ message: 'Usuario y/o contraseña incorrecta' });
     }
 
-    const { id,name, privilegio, imageUrl } = user;
+    const { id,name, privilegio, image } = user;
 
     const token = jwt.sign(
-      { id, name, privilegio, imageUrl },
+      { id, name, privilegio, image },
       process.env.JWT_SECRET,
       { expiresIn: process.env.JWT_TIME_EXPIRE }
     );

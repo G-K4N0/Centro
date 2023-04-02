@@ -12,7 +12,7 @@ export const getTimesbyDocentes = async (req, res) => {
             where: {
                 idUser: userId
             },
-            attributes: ['id', 'timeInit', 'timeEnd', 'day'],
+            attributes: ['id', 'inicia', 'finaliza', 'dia'],
             include: [
                 {
                     model: Materia,
@@ -24,7 +24,7 @@ export const getTimesbyDocentes = async (req, res) => {
                     include: [
                         {
                             model: Semestre,
-                            attributes: ['semester']
+                            attributes: ['semestre']
                         },
                         {
                             model: Carrera,
@@ -34,11 +34,11 @@ export const getTimesbyDocentes = async (req, res) => {
                 },
                 {
                     model: Lab,
-                    attributes: ['name', 'status']
+                    attributes: ['name', 'ocupado']
                 },
                 {
                     model: Usuario,
-                    attributes: ['name', 'imageUrl']
+                    attributes: ['name', 'image']
                 }
             ]
         });
@@ -51,7 +51,7 @@ export const getTimesbyDocentes = async (req, res) => {
 export const getTimes = async (req,res) => {
     try {
         const data = await Horario.findAll({
-            attributes:['id','timeInit','timeEnd', 'day'],
+            attributes:['id','inicia','finaliza', 'dia'],
             include: [
                 {
                     model: Materia,
@@ -63,7 +63,7 @@ export const getTimes = async (req,res) => {
                     include:[
                         {
                             model:Semestre,
-                            attributes:['semester']
+                            attributes:['semestre']
                         },
                         {
                             model:Carrera,
@@ -73,11 +73,11 @@ export const getTimes = async (req,res) => {
                 },
                 {
                     model:Lab,
-                    attributes: ['name','status']
+                    attributes: ['name','ocupado']
                 },
                 {
                     model:Usuario,
-                    attributes: ['name','imageUrl']
+                    attributes: ['name','image']
                 }
             ]
         })
@@ -93,7 +93,7 @@ export const getTime = async (req,res) => {
             where:{
                 id : req.params.id
             },
-            attributes:['id','timeInit','TimeEnd', 'day'],
+            attributes:['id','inicia','finaliza', 'dia'],
             include: [
                 {
                     model: Materia,
@@ -105,11 +105,11 @@ export const getTime = async (req,res) => {
                 },
                 {
                     model:Lab,
-                    attributes: ['name','status']
+                    attributes: ['name','ocupado']
                 },
                 {
                     model:Usuario,
-                    attributes: ['name']
+                    attributes: ['name','image']
                 }
             ]
         });
