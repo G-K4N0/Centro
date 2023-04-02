@@ -22,7 +22,7 @@ const Usuario = db.define('usuario',{
         type:DataTypes.STRING,
         allowNull:false
     },
-    privilegio:{
+    idPrivilegio:{
         type:DataTypes.TINYINT,
         allowNull:false
     },

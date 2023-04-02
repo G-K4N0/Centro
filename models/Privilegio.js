@@ -18,12 +18,12 @@ const Privilegio = db.define('privilegio',{
 })
 
 Privilegio.hasMany(Usuario, {
-    foreignKey:'privilegio',
+    foreignKey:'idPrivilegio',
     sourceKey:'id'
 })
 
 Usuario.belongsTo(Privilegio, {
-    foreignKey:'privilegio',
+    foreignKey:'idPrivilegio',
     targetId:'id'
 })
 
