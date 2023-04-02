@@ -20,7 +20,8 @@ const Semestre = db.define('semestre',{
     }
 },
 {
-    freezeTableName:true
+    freezeTableName:true,
+    timestamps: false
 });
 
 Semestre.hasMany(Grupo,{

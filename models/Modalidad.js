@@ -14,7 +14,8 @@ const Modalidad = db.define('modalidad', {
         allowNull:false
     }
 },{
-    freezeTableName:true
+    freezeTableName:true,
+    timestamps: false
 });
 
 Modalidad.hasMany(Grupo,{

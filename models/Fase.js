@@ -14,7 +14,8 @@ const Fase = db.define('fase',{
         allowNull:false
     }
 },{
-    freezeTableName:true
+    freezeTableName:true,
+    timestamps: false
 });
 
 Fase.hasMany(Grupo,{

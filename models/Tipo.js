@@ -14,7 +14,8 @@ const Tipo = db.define('tipo',{
         allowNull:false
     }
 },{
-    freezeTableName:true
+    freezeTableName:true,
+    timestamps: false
 });
 
 Tipo.hasMany(Grupo,{
