@@ -7,23 +7,23 @@ const Horario = db.define("horario", {
     primaryKey: true,
     autoIncrement: true,
   },
-  timeInit: {
+  inicia: {
     type: DataTypes.STRING,
     allowNull: false,
   },
-  timeEnd: {
+  finaliza: {
     type: DataTypes.STRING,
     allowNull: false,
   },
-  day: {
+  dia: {
     type: DataTypes.STRING,
     allowNull: false,
   },
-  idGroup: {
+  idGrupo: {
     type: DataTypes.INTEGER,
     allowNull: false,
   },
-  idTopic: {
+  idMateria: {
     type: DataTypes.INTEGER,
     allowNull: false
   },
@@ -31,7 +31,7 @@ const Horario = db.define("horario", {
     type: DataTypes.SMALLINT,
     allowNull: false,
   },
-  idUser: {
+  idUsuario: {
     type: DataTypes.INTEGER,
     allowNull: false,
   },

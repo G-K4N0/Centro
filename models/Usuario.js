@@ -13,7 +13,7 @@ const Usuario = db.define('usuario',{
         type:DataTypes.STRING,
         allowNull:false
     },
-    nickname:{
+    user:{
         type:DataTypes.STRING,
         allowNull:false,
         unique:true
@@ -22,11 +22,11 @@ const Usuario = db.define('usuario',{
         type:DataTypes.STRING,
         allowNull:false
     },
-    privileges:{
+    privilegio:{
         type:DataTypes.TINYINT,
         allowNull:false
     },
-    imageUrl:{
+    image:{
         type: {
             url: String,
             public_id: String

@@ -10,11 +10,11 @@ const Semestre = db.define('semestre',{
         primaryKey:true,
         allowNull:false
     },
-    semester:{
+    semestre:{
         type: DataTypes.STRING,
         allowNull:false
     },
-    schoolPeriod:{
+    periodo:{
         type: DataTypes.STRING,
         allowNull:false
     }
@@ -24,12 +24,12 @@ const Semestre = db.define('semestre',{
 });
 
 Semestre.hasMany(Grupo,{
-    foreignKey:'idSemester',
+    foreignKey:'idSemestre',
     sourceKey:'id'
 })
 
 Grupo.belongsTo(Semestre,{
-    foreignKey:'idSemester',
+    foreignKey:'idSemestre',
     targetId:'id'
 })
 
@@ -39,7 +39,7 @@ Semestre.hasMany(Registro,{
 })
 
 Registro.belongsTo(Semestre,{
-    foreignKey:'idSemester',
+    foreignKey:'idSemestre',
     targetId:'id'
 })
 export default Semestre

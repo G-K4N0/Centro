@@ -17,19 +17,19 @@ const Grupo = db.define("grupo",{
         type: DataTypes.SMALLINT,
         allowNull: false,
     },
-    idType:{
+    idTipo:{
         type: DataTypes.SMALLINT,
         allowNull:false
     },
-    idPhase:{
+    idFase:{
         type: DataTypes.SMALLINT,
         allowNull:false
     },
-    idSemester:{
+    idSemestre:{
         type: DataTypes.SMALLINT,
         allowNull:false
     },
-    idCareer:{
+    idCarrera:{
         type: DataTypes.SMALLINT,
         allowNull:false
     }
