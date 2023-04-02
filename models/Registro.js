@@ -1,4 +1,5 @@
 import db from '../database/db.js'
+import Lab from './Lab.js';
 import { DataTypes } from 'sequelize'
 
 const Registro = db.define('registro',{
@@ -35,5 +36,10 @@ const Registro = db.define('registro',{
 },{
     freezeTableName:true
 })
+
+Registro.belongsTo(Lab, {
+    foreignKey: 'idLab',
+    targetKey: 'id'
+  });
 
 export default Registro
