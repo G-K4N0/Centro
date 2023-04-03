@@ -62,7 +62,7 @@ async function main() {
 			if (err) {
 				console.log('Error: ',err)
 			} else if (!user){
-				const admin = new User({
+				const admin = new Usuario({
 					name:process.env.ADMIN_NAME,
 					user:process.env.ADMIN_USER,
 					password: bcrypt.hashSync(process.env.ADMIN_PASS,10),
