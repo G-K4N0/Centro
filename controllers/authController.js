@@ -16,7 +16,7 @@ export const login = async (req, res) => {
   const { user, password } = req.body;
 
   try {
-    const user = await Usuario.findOne({
+    const usuario = await Usuario.findOne({
       attributes: ['id', 'name','user', 'password','image'],
       include: [{
         model: Privilegio,
@@ -25,7 +25,7 @@ export const login = async (req, res) => {
       where: { user }
     });
 
-    if (!user) {
+    if (!usuario) {
       return res.status(401).json({ message: 'Usuario y/o contraseña incorrecta' });
     }
 
@@ -34,7 +34,7 @@ export const login = async (req, res) => {
       return res.status(401).json({ message: 'Usuario y/o contraseña incorrecta' });
     }
 
-    const { id,name, privilegio, image } = user;
+    const { id,name, privilegio, image } = usuario;
 
     const token = jwt.sign(
       { id, name, privilegio, image },

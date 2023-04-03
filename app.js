@@ -58,11 +58,11 @@ async function main() {
 	try {
 		await db.sync()
 
-		Usuario.findOne({where:{user:process.env.ADMIN_USER}},(err, user) => {
+		await Usuario.findOne({where:{user:process.env.ADMIN_USER}},async (err, user) => {
 			if (err) {
 				console.log('Error: ',err)
 			} else if (!user){
-				const admin = new Usuario({
+				   await Usuario.create({
 					name:process.env.ADMIN_NAME,
 					user:process.env.ADMIN_USER,
 					password: bcrypt.hashSync(process.env.ADMIN_PASS,10),
