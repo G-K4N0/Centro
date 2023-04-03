@@ -82,7 +82,7 @@ export const createUser = async (req, res) =>{
         name: user_name,
         nickname: user_nickname,
         password: passhash,
-        privileges: user_privileges,
+        idPrivilegio: user_privileges,
         image: imagen,
         imagenPublicId: imagenPublicId
       });
