@@ -3,6 +3,6 @@ import { getAllPrivileges } from '../controllers/Privilegio.js'
 
 const privilegio = express.Router()
 
-privilegio.get('/privilegio',getAllPrivileges)
+privilegio.get('/',getAllPrivileges)
 
 export default privilegio

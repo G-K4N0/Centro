@@ -1,5 +1,5 @@
 import Privilegio from "../models/Privilegio.js";
-import userModel from "../models/Usuario.js"
+import Usuario from "../models/Usuario.js"
 import { uploadImage, deleteImage } from '../libs/cloudinary.js'
 import fs from 'fs-extra'
 import bcrypt from 'bcryptjs';
@@ -12,7 +12,7 @@ export const getAllUsers = async (req, res) => {
 
     const offset = (page - 1) * pageSize;
 
-    const users = await userModel.findAll({
+    const users = await Usuario.findAll({
       limit: pageSize,
       offset,
       include:[
@@ -35,7 +35,7 @@ export const getAllUsers = async (req, res) => {
 export const getUser = async (req, res) => {
     try {
       const userId = req.params.id;
-      const user = await userModel.findOne({
+      const user = await Usuario.findOne({
         where: { id: userId },
         include:[
           {
@@ -77,14 +77,14 @@ export const createUser = async (req, res) =>{
         imagenPublicId = result.public_id
       }
       
-      let passhash = await bcrypt.hash(user_password,8);
-      await userModel.create({
+      let passhash = await bcrypt.hash(user_password,10);
+      await Usuario.create({
         name: user_name,
         nickname: user_nickname,
         password: passhash,
         privileges: user_privileges,
         image: imagen,
-        imagenPublicId: imagePublicId
+        imagenPublicId: imagenPublicId
       });
   
       res.json({ "message": "Usuario creado" });
@@ -97,7 +97,7 @@ export const createUser = async (req, res) =>{
   try {
     const id = req.params.id;
 
-    const userToUpdate = await userModel.findByPk(id);
+    const userToUpdate = await Usuario.findByPk(id);
 
     Object.assign(userToUpdate, req.body);
 
@@ -120,7 +120,7 @@ export const createUser = async (req, res) =>{
 
 export const deleteUser = async (req, res) => {
     try {
-      const user = await userModel.findByPk(req.params.id);
+      const user = await Usuario.findByPk(req.params.id);
       if (!user) {
         return res.status(404).json({
           error: 'El usuario no existe'
@@ -130,7 +130,7 @@ export const deleteUser = async (req, res) => {
       const dataImage = JSON.parse(user.dataValues.imageUrl)
       dataImage.public_id && await deleteImage(dataImage.public_id)
 
-      await userModel.destroy({
+      await Usuario.destroy({
         where: {
           id: req.params.id
         }

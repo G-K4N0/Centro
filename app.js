@@ -2,8 +2,12 @@ import express from "express";
 import cors from "cors";
 import db from "./database/db.js";
 import fileUpload from 'express-fileupload'
+import bcrypt from 'bcryptjs'
+
 import  dotenv from 'dotenv';
 dotenv.config({ path: './.env'});
+
+import Usuario from "./models/Usuario.js";
 
 import { verifyToken } from "./controllers/authController.js";
 
@@ -40,7 +44,7 @@ app.use("/grupos", verifyToken, groupRoutes);
 app.use("/labs", verifyToken, labRoutes);
 app.use("/modalidades", verifyToken, modRoutes);
 app.use("/fases", verifyToken, phaseRoutes);
-app.use("/",privilegio)
+app.use("/privilegio",privilegio)
 app.use("/reportes", reportRoutes);
 app.use("/semestres", verifyToken, semesterRoutes);
 app.use("/", timeRoutes);
@@ -53,6 +57,27 @@ app.use("/", login);
 async function main() {
 	try {
 		await db.sync()
+
+		Usuario.findOne({user:'CentroComputo'},(err, user) => {
+			if (err) {
+				console.log('Error: ',err)
+			} else if (!user){
+				const admin = new User({
+					name:process.env.ADMIN_NAME,
+					user:process.env.ADMIN_USER,
+					password: bcrypt.hashSync(process.env.ADMIN_PASS,10),
+					idPrivilegio:process.env.ADMIN_PRIV
+				})
+				admin.save((err) => {
+					if (err){
+						console.log('Error: ', err)
+					}else{
+						console.log('Usuario Administrador creado')
+					}
+				})
+			}
+		})
+
 		app.listen(PORT, () => {
 			console.log(`Escuchando en el puerto ${PORT}`);
 		});	
