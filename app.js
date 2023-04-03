@@ -58,7 +58,7 @@ async function main() {
 	try {
 		await db.sync()
 
-		Usuario.findOne({user:'CentroComputo'},(err, user) => {
+		Usuario.findOne({where:{user:process.env.ADMIN_USER}},(err, user) => {
 			if (err) {
 				console.log('Error: ',err)
 			} else if (!user){
