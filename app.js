@@ -70,9 +70,9 @@ async function main() {
 		await Usuario.findOne({ where: { user: administratorName } }).then(async (user) => {
 			if (!user) {
 			  const privilegio = await Privilegio.bulkCreate([
-				{name:'Administrador'},
-				{name:'Docente'}
-			  ])
+				{name:priv_name},
+				{name:priv_user}
+			  ], { fields: ['name'] })
 		  
 			  const admin = await Usuario.create({
 				name: administratorName,
