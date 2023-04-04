@@ -70,7 +70,7 @@ async function main() {
 				name: process.env.ADMIN_NAME,
     			user: process.env.ADMIN_USER,
     			password: bcrypt.hashSync(process.env.ADMIN_PASS, 10),
-    			idPrivilegio:process.env.ADMIN_PRIV
+    			idPrivilegio:1
 			  });
 		  
 			  console.log('Usuario Administrador creado');
