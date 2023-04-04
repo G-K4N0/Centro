@@ -79,7 +79,7 @@ async function main() {
 			  const admin = Usuario.build({
 				name: administratorName,
 				user: administratorUser,
-				password: bcrypt.hashSync(administratorPass, 10),
+				password: bcrypt.hash(administratorPass, 10),
 				idPrivilegio: administratorPriv
 			  });
 		  

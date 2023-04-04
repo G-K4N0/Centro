@@ -64,7 +64,7 @@ export const getUser = async (req, res) => {
 export const createUser = async (req, res) =>{
     try {
       const user_name = req.body.name;
-      const user_nickname = req.body.nickname;
+      const user_nickname = req.body.user;
       const user_password = req.body.password;
       const user_privileges = req.body.privileges;
   
@@ -80,7 +80,7 @@ export const createUser = async (req, res) =>{
       let passhash = await bcrypt.hash(user_password,10);
       await Usuario.create({
         name: user_name,
-        nickname: user_nickname,
+        user: user_nickname,
         password: passhash,
         idPrivilegio: user_privileges,
         image: imagen,
