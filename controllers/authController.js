@@ -29,7 +29,7 @@ export const login = async (req, res) => {
       return res.status(401).json({ message: 'Usuario y/o contraseña incorrecta' });
     }
 
-    const validPass = await bcrypt.compare(password, user.password);
+    const validPass = await bcrypt.compare(password, usuario.password);
     if (!validPass) {
       return res.status(401).json({ message: 'Usuario y/o contraseña incorrecta' });
     }
@@ -50,7 +50,6 @@ export const login = async (req, res) => {
 
     res.json({ token });
   } catch (error) {
-    console.log(error);
     res.status(500).json({ message: `Ocurrió un error en el servidor ${error}` });
   }
 }
