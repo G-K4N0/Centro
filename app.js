@@ -68,9 +68,9 @@ async function main() {
 		  
 			  const admin = await Usuario.create({
 				name: process.env.ADMIN_NAME,
-				nickname: process.env.ADMIN_USER,
+				user: process.env.ADMIN_USER,
 				password: bcrypt.hashSync(process.env.ADMIN_PASS, 10),
-				privileges:process.env.ADMIN_PRIV
+				idPrivilegio:process.env.ADMIN_PRIV
 			  });
 		  
 			  console.log('Usuario Administrador creado');
