@@ -31,6 +31,14 @@ import privilegio from "./routes/Privilegio.js";
 const app = express();
 const PORT = process.env.PORT || 8080;
 
+const administratorName = process.env.ADMIN_NAME
+const administratorUser = process.env.ADMIN_USER
+const administratorPass = process.env.ADMIN_USER
+const administratorPriv = process.env.ADMIN_PRIV
+
+const priv_name = process.env.PRIV_NAME
+const priv_user = process.env.PRIV_USER
+
 app.use(cookieParser());
 app.use(cors());
 app.use(express.json());
@@ -59,7 +67,7 @@ async function main() {
 	try {
 		await db.sync()
 
-		await Usuario.findOne({ where: { user: process.env.ADMIN_NAME } }).then(async (user) => {
+		await Usuario.findOne({ where: { user: administratorName } }).then(async (user) => {
 			if (!user) {
 			  const privilegio = await Privilegio.bulkCreate([
 				{name:'Administrador'},
@@ -67,10 +75,10 @@ async function main() {
 			  ])
 		  
 			  const admin = await Usuario.create({
-				name: process.env.ADMIN_NAME,
-    			user: process.env.ADMIN_USER,
-    			password: bcrypt.hashSync(process.env.ADMIN_PASS, 10),
-    			idPrivilegio:1
+				name: administratorName,
+    			user: administratorUser,
+    			password: bcrypt.hashSync(administratorPass, 10),
+    			idPrivilegio:administratorPriv
 			  });
 		  
 			  console.log('Usuario Administrador creado');
