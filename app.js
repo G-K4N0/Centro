@@ -27,6 +27,9 @@ import login from "./routes/login.js";
 import cookieParser from "cookie-parser";
 import Registro from "./routes/Registro.js";
 import privilegio from "./routes/Privilegio.js";
+import Fase from "./models/Fase.js";
+import Modalidad from "./models/Modalidad.js";
+import Tipo from "./models/Tipo.js";
 
 const app = express();
 const PORT = process.env.PORT || 8080;
@@ -72,6 +75,21 @@ async function main() {
 				const privilegio = await Privilegio.bulkCreate([
 					{ name: priv_name },
 					{ name: priv_user }
+				  ], { fields: ['name'] });
+				
+				  const fase = await Fase.bulkCreate([
+					{ name: 'Primera' },
+					{ name: 'Segunda' }
+				  ], { fields: ['name'] });
+
+				  const modalidad = await Modalidad.bulkCreate([
+					{ name: Escolarizada },
+					{ name: SemiEscolarizada }
+				  ], { fields: ['name'] });
+
+				  const tipo = await Tipo.bulkCreate([
+					{ name: 'Matutino' },
+					{ name: 'Vespertino' }
 				  ], { fields: ['name'] });
 			  
 				  const admin = Usuario.build({
