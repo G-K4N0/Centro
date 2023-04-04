@@ -74,13 +74,15 @@ async function main() {
 				{name:priv_user}
 			  ], { fields: ['name'] })
 		  
-			  const admin = await Usuario.create({
+			  const admin = Usuario.build({
 				name: administratorName,
     			user: administratorUser,
     			password: bcrypt.hashSync(administratorPass, 10),
     			idPrivilegio:administratorPriv
 			  });
-		  
+
+			  await admin.save()
+
 			  console.log('Usuario Administrador creado');
 			}
 		  });
