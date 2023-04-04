@@ -8,6 +8,7 @@ import  dotenv from 'dotenv';
 dotenv.config({ path: './.env'});
 
 import Usuario from "./models/Usuario.js";
+import Privilegio from "./models/Privilegio.js";
 
 import { verifyToken } from "./controllers/authController.js";
 
@@ -58,26 +59,23 @@ async function main() {
 	try {
 		await db.sync()
 
-		await Usuario.findOne({where:{user:process.env.ADMIN_USER}},async (err, user) => {
-			if (err) {
-				console.log('Error: ',err)
-			} else if (!user){
-				   await Usuario.create({
-					name:process.env.ADMIN_NAME,
-					user:process.env.ADMIN_USER,
-					password: bcrypt.hashSync(process.env.ADMIN_PASS,10),
-					idPrivilegio:process.env.ADMIN_PRIV
-				})
-				admin.save((err) => {
-					if (err){
-						console.log('Error: ', err)
-					}else{
-						console.log('Usuario Administrador creado')
-					}
-				})
+		await Usuario.findOne({ where: { user: process.env.ADMIN_USER } }).then(async (user) => {
+			if (!user) {
+			  const privilegio = await Privilegio.bulkCreate([
+				{name:process.env.PRIV_NAME_ONE},
+				{name:process.env.PRIV_NAME_TWO}
+			  ])
+		  
+			  const admin = await Usuario.create({
+				name: process.env.ADMIN_NAME,
+				nickname: process.env.ADMIN_USER,
+				password: bcrypt.hashSync(process.env.ADMIN_PASS, 10),
+				privileges:process.env.ADMIN_PRIV
+			  });
+		  
+			  console.log('Usuario Administrador creado');
 			}
-		})
-
+		  });
 		app.listen(PORT, () => {
 			console.log(`Escuchando en el puerto ${PORT}`);
 		});	
