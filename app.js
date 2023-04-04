@@ -67,26 +67,28 @@ async function main() {
 	try {
 		await db.sync()
 
-		await Usuario.findOne({ where: { user: administratorName } }).then(async (user) => {
-			if (!user) {
+		await Usuario.findOne({ where: { user: administratorUser } }).then(async (existingUser) => {
+			if (existingUser) {
+			  console.log('El nombre de usuario ya existe');
+			} else {
 			  const privilegio = await Privilegio.bulkCreate([
-				{name:priv_name},
-				{name:priv_user}
-			  ], { fields: ['name'] })
+				{ name: priv_name },
+				{ name: priv_user }
+			  ], { fields: ['name'] });
 		  
 			  const admin = Usuario.build({
 				name: administratorName,
-    			user: administratorUser,
-    			password: bcrypt.hashSync(administratorPass, 10),
-    			idPrivilegio:administratorPriv
+				user: administratorUser,
+				password: bcrypt.hashSync(administratorPass, 10),
+				idPrivilegio: administratorPriv
 			  });
-
-			  await admin.save()
-
+		  
+			  await admin.save();
+		  
 			  console.log('Usuario Administrador creado');
 			}
 		  });
-
+		  
 		app.listen(PORT, () => {
 			console.log(`Escuchando en el puerto ${PORT}`);
 		});	
