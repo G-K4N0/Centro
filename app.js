@@ -33,7 +33,7 @@ const PORT = process.env.PORT || 8080;
 
 const administratorName = process.env.ADMIN_NAME
 const administratorUser = process.env.ADMIN_USER
-const administratorPass = process.env.ADMIN_USER
+let administratorPass = bcrypt.hash(process.env.ADMIN_PASS, 10)
 const administratorPriv = process.env.ADMIN_PRIV
 
 const priv_name = process.env.PRIV_NAME
@@ -77,7 +77,7 @@ async function main() {
 				  const admin = Usuario.build({
 					name: administratorName,
 					user: administratorUser,
-					password: bcrypt.hash(administratorPass, 10),
+					password: administratorPass,
 					idPrivilegio: administratorPriv
 				  });
 			  
