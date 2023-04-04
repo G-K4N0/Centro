@@ -13,7 +13,7 @@ export const login = async (req, res) => {
     return res.status(400).json({ errors: errors.array() });
   }
 
-  const { user_name, user_password } = req.body;
+  const { user, password } = req.body;
 
   try {
     const usuario = await Usuario.findOne({
@@ -22,14 +22,14 @@ export const login = async (req, res) => {
         model: Privilegio,
         attributes: ['name']
       }],
-      where: { user:user_name }
+      where: { user:user }
     });
 
     if (!usuario) {
       return res.status(401).json({ message: '-> Usuario y/o contraseña incorrecta' });
     }
 
-    const validPass = await bcrypt.compare(user_password, usuario.password);
+    const validPass = await bcrypt.compare(password, usuario.password);
     if (!validPass) {
       return res.status(401).json({ message: 'Usuario y/o contraseña incorrecta' });
     }
