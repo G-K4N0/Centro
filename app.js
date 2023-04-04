@@ -83,8 +83,8 @@ async function main() {
 				  ], { fields: ['name'] });
 
 				  const modalidad = await Modalidad.bulkCreate([
-					{ name: Escolarizada },
-					{ name: SemiEscolarizada }
+					{ name: 'Escolarizada' },
+					{ name: 'SemiEscolarizada' }
 				  ], { fields: ['name'] });
 
 				  const tipo = await Tipo.bulkCreate([
