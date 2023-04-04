@@ -59,11 +59,11 @@ async function main() {
 	try {
 		await db.sync()
 
-		await Usuario.findOne({ where: { user: process.env.ADMIN_USER } }).then(async (user) => {
+		await Usuario.findOne({ where: { user: process.env.ADMIN_NAME } }).then(async (user) => {
 			if (!user) {
 			  const privilegio = await Privilegio.bulkCreate([
-				{name:process.env.PRIV_NAME_ONE},
-				{name:process.env.PRIV_NAME_TWO}
+				{name:'Administrador'},
+				{name:'Docente'}
 			  ])
 		  
 			  const admin = await Usuario.create({
@@ -76,6 +76,7 @@ async function main() {
 			  console.log('Usuario Administrador creado');
 			}
 		  });
+
 		app.listen(PORT, () => {
 			console.log(`Escuchando en el puerto ${PORT}`);
 		});	
