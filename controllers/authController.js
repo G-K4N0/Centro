@@ -77,7 +77,7 @@ export const verifyToken = async(req, res, next) => {
           } else if (user.privilegio.name === 'Docente') {
               next();
           } else {
-              return res.status(403).send('--> Acceso denegado');
+              return res.status(403).send(`${user}--> Acceso denegado`);
           }
       }
   });
