@@ -10,8 +10,6 @@ dotenv.config({ path: './.env'});
 import Usuario from "./models/Usuario.js";
 import Privilegio from "./models/Privilegio.js";
 
-import { verifyToken } from "./controllers/authController.js";
-
 import careerRoutes from "./routes/Carrera.js";
 import groupRoutes from "./routes/Grupo.js";
 import labRoutes from "./routes/Lab.js";
@@ -30,6 +28,7 @@ import privilegio from "./routes/Privilegio.js";
 import Fase from "./models/Fase.js";
 import Modalidad from "./models/Modalidad.js";
 import Tipo from "./models/Tipo.js";
+import routerAviso from "./routes/Aviso.js";
 
 const app = express();
 const PORT = process.env.PORT || 8080;
@@ -51,19 +50,20 @@ app.use(fileUpload({
 	tempFileDir: './upload'
 }))
 
-app.use("/carreras", verifyToken, careerRoutes);
-app.use("/grupos", verifyToken, groupRoutes);
-app.use("/labs", verifyToken, labRoutes);
-app.use("/modalidades", verifyToken, modRoutes);
-app.use("/fases", verifyToken, phaseRoutes);
+app.use("/carreras", careerRoutes);
+app.use("/grupos", groupRoutes);
+app.use("/labs", labRoutes);
+app.use("/modalidades", modRoutes);
+app.use("/fases", phaseRoutes);
 app.use("/privilegio",privilegio)
 app.use("/reportes", reportRoutes);
-app.use("/semestres", verifyToken, semesterRoutes);
+app.use("/semestres",semesterRoutes);
 app.use("/", timeRoutes);
-app.use("/materias", verifyToken, topicRoutes);
-app.use("/tipos", verifyToken, typeRoutes);
-app.use("/usuarios", verifyToken, userRoutes);
+app.use("/materias", topicRoutes);
+app.use("/tipos", typeRoutes);
+app.use("/usuarios", userRoutes);
 app.use("/registro",Registro)
+app.use("/avisos",routerAviso)
 app.use("/", login);
 
 async function main() {

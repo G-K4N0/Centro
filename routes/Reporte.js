@@ -1,12 +1,19 @@
-import express from 'express';
-import {createReport, deleteReport, getAllReports, getReport, updateReport} from '../controllers/Reporte.js';
+import { Router } from "express"
+import {
+  createReport,
+  deleteReport,
+  getAllReports,
+  getReport,
+  updateReport,
+} from "../controllers/Reporte.js"
+import { verifyToken } from "./controllers/authController.js"
 
-const routeReport = express.Router();
+const routeReport = Router()
 
-routeReport.get('/',getAllReports);
-routeReport.get('/:id', getReport);
-routeReport.post('/',createReport);
-routeReport.put('/:id',updateReport);
-routeReport.delete('/:id',deleteReport);
+routeReport.get("/", verifyToken, getAllReports)
+routeReport.get("/:id", verifyToken, getReport)
+routeReport.post("/", verifyToken, createReport)
+routeReport.put("/:id", verifyToken, updateReport)
+routeReport.delete("/:id", verifyToken, deleteReport)
 
-export default routeReport;
+export default routeReport

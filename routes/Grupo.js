@@ -1,12 +1,18 @@
-import express from 'express';
-import {createGroup, deleteGroup, getAllGroups, getGroup, updateGroup} from '../controllers/Grupo.js';
+import { Router } from "express"
+import {
+  createGroup,
+  deleteGroup,
+  getAllGroups,
+  getGroup,
+  updateGroup,
+} from "../controllers/Grupo.js"
+import { verifyToken, isAdmin } from "./controllers/authController.js"
+const routeGroup = Router()
 
-const routeGroup = express.Router();
+routeGroup.get("/", verifyToken, isAdmin, getAllGroups)
+routeGroup.get("/:id", verifyToken, isAdmin, getGroup)
+routeGroup.post("/", verifyToken, isAdmin, createGroup)
+routeGroup.put("/:id", verifyToken, isAdmin, updateGroup)
+routeGroup.delete("/:id", verifyToken, isAdmin, deleteGroup)
 
-routeGroup.get('/',getAllGroups);
-routeGroup.get('/:id', getGroup);
-routeGroup.post('/',createGroup);
-routeGroup.put('/:id',updateGroup);
-routeGroup.delete('/:id',deleteGroup);
-
-export default routeGroup;
+export default routeGroup

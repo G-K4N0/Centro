@@ -1,10 +1,14 @@
-import express from 'express'
-import { createRegister, getAllRegisters, getRegister } from '../controllers/Registro.js'
+import { Router } from "express"
+import {
+  createRegister,
+  getAllRegisters,
+  getRegister,
+} from "../controllers/Registro.js"
+import { verifyToken } from "./controllers/authController.js"
+const Registro = Router()
 
-const Registro = express.Router()
-
-Registro.get('/',getAllRegisters)
-Registro.get('/:id',getRegister)
-Registro.post('/',createRegister)
+Registro.get("/", verifyToken, getAllRegisters)
+Registro.get("/:id", verifyToken, getRegister)
+Registro.post("/", verifyToken, createRegister)
 
 export default Registro

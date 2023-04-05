@@ -1,12 +1,18 @@
-import express from 'express';
-import {createMod, deleteMod, getAllMods, getMod, updateMod} from '../controllers/Modalidad.js';
+import { Router } from "express"
+import {
+  createMod,
+  deleteMod,
+  getAllMods,
+  getMod,
+  updateMod,
+} from "../controllers/Modalidad.js"
+import { verifyToken, isAdmin } from "./controllers/authController.js"
+const modRoutes = Router()
 
-const modRoutes = express.Router();
+modRoutes.get("/", getAllMods)
+modRoutes.get("/:id", getMod)
+modRoutes.post("/", verifyToken, isAdmin, createMod)
+modRoutes.put("/:id", verifyToken, isAdmin, updateMod)
+modRoutes.delete("/:id", verifyToken, isAdmin, deleteMod)
 
-modRoutes.get('/',getAllMods);
-modRoutes.get('/:id', getMod);
-modRoutes.post('/', createMod);
-modRoutes.put('/:id', updateMod);
-modRoutes.delete('/:id', deleteMod);
-
-export default modRoutes;
+export default modRoutes

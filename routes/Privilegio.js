@@ -1,8 +1,9 @@
-import express from 'express'
-import { getAllPrivileges } from '../controllers/Privilegio.js'
+import { Router } from "express"
+import { isAdmin, verifyToken } from "../controllers/authController.js"
+import { getAllPrivileges } from "../controllers/Privilegio.js"
 
-const privilegio = express.Router()
+const privilegio = Router()
 
-privilegio.get('/',getAllPrivileges)
+privilegio.get("/", verifyToken, isAdmin, getAllPrivileges)
 
 export default privilegio

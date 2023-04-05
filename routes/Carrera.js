@@ -1,12 +1,19 @@
-import  express  from 'express';
-import { createCareer, deletCareer, getAllCareers, getCareer, updateCareer } from '../controllers/Carrera.js'
+import { Router } from "express"
+import {
+  createCareer,
+  deletCareer,
+  getAllCareers,
+  getCareer,
+  updateCareer,
+} from "../controllers/Carrera.js"
+import { verifyToken, isAdmin } from "./controllers/authController.js"
 
-const routerCareer = express.Router();
+const routerCareer = Router()
 
-routerCareer.get('/',getAllCareers);
-routerCareer.get('/:id',getCareer);
-routerCareer.post('/',createCareer);
-routerCareer.put('/:id',updateCareer);
-routerCareer.get('/:id',deletCareer);
+routerCareer.get("/", verifyToken, isAdmin, getAllCareers)
+routerCareer.get("/:id", verifyToken, isAdmin, getCareer)
+routerCareer.post("/", verifyToken, isAdmin, createCareer)
+routerCareer.put("/:id", verifyToken, isAdmin, updateCareer)
+routerCareer.delete("/:id", verifyToken, isAdmin, deletCareer)
 
-export default routerCareer;
+export default routerCareer

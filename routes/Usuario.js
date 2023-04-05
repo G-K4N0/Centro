@@ -1,12 +1,19 @@
-import express from 'express';
-import { createUser, deleteUser, getAllUsers, getUser, updateUser } from "../controllers/Usuario.js";
+import { Router } from "express"
+import {
+  createUser,
+  deleteUser,
+  getAllUsers,
+  getUser,
+  updateUser,
+} from "../controllers/Usuario.js"
+import { verifyToken, isAdmin } from "./controllers/authController.js"
 
-const routerUser = express.Router();
+const routerUser = Router()
 
-routerUser.get('/', getAllUsers);
-routerUser.get('/:id', getUser);
-routerUser.post('/', createUser);
-routerUser.put('/:id', updateUser);
-routerUser.delete('/:id', deleteUser);
+routerUser.get("/", verifyToken, getAllUsers)
+routerUser.get("/:id", verifyToken, getUser)
+routerUser.post("/", verifyToken, isAdmin, createUser)
+routerUser.put("/:id", verifyToken, isAdmin, updateUser)
+routerUser.delete("/:id", verifyToken, isAdmin, deleteUser)
 
-export default routerUser;
+export default routerUser

@@ -1,8 +1,8 @@
-import typeModel from '../models/Tipo.js';
+import Tipo from '../models/Tipo.js';
 
 export const getAllTypes = async (req, res) => {
     try {
-        const types = await typeModel.findAll();
+        const types = await Tipo.findAll();
         res.json(types);
     } catch (error) {
         res.json({
@@ -13,7 +13,7 @@ export const getAllTypes = async (req, res) => {
 
 export const getType = async (req, res) => {
     try {
-        const type = await typeModel.findAll({
+        const type = await Tipo.findAll({
             where:{
                 id:req.params.id
             }
@@ -29,7 +29,7 @@ export const getType = async (req, res) => {
 
 export const createType = async (req,res) => {
     try {
-        await typeModel.create(req.body);
+        await Tipo.create(req.body);
         res.json({
             "message": "Tipo añadido"
         })
@@ -42,7 +42,7 @@ export const createType = async (req,res) => {
 
 export const updateType = async (req, res) =>{
     try {
-        await typeModel.update(req.body,{
+        await Tipo.update(req.body,{
             where: {
                 id: req.params.id
             }
@@ -59,7 +59,7 @@ export const updateType = async (req, res) =>{
 
 export const deleteType = async (req, res) =>{
     try {
-        await typeModel.destroy({
+        await Tipo.destroy({
             where:{
                 id : req.params.id
             }

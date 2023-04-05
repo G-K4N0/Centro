@@ -48,7 +48,7 @@ export const login = async (req, res) => {
     };
     res.cookie('token', token, cookiesOptions);
 
-    res.json({ token });
+    res.status(200).json({ token });
   } catch (error) {
     res.status(500).json({ message: `Ocurrió un error en el servidor ${error}` });
   }
@@ -85,7 +85,7 @@ export const verifyToken = async(req, res, next) => {
 
 export function isAdmin(req, res, next) {
   const user = req.user;
-  if (!user.privileges.Administrador) {
+  if (!(user.idPrivilegio === 1)) {
     return res.status(403).send('No tiene permiso para acceder a esta ruta.');
   }
 

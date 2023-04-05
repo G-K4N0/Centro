@@ -1,12 +1,19 @@
-import express from 'express';
-import {createType, deleteType, getAllTypes, getType, updateType} from '../controllers/Tipo.js';
+import { Router } from "express"
+import {
+  createType,
+  deleteType,
+  getAllTypes,
+  getType,
+  updateType,
+} from "../controllers/Tipo.js"
+import { verifyToken, isAdmin } from "./controllers/authController.js"
 
-const typeRoute = express.Router();
+const typeRoute = Router()
 
-typeRoute.get('/', getAllTypes);
-typeRoute.get('/:id', getType);
-typeRoute.post('/', createType);
-typeRoute.put('/', updateType);
-typeRoute.delete('/', deleteType);
+typeRoute.get("/", verifyToken, getAllTypes)
+typeRoute.get("/:id", verifyToken, getType)
+typeRoute.post("/", verifyToken, isAdmin, createType)
+typeRoute.put("/", verifyToken, isAdmin, updateType)
+typeRoute.delete("/", verifyToken, isAdmin, deleteType)
 
-export default typeRoute;
+export default typeRoute
