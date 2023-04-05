@@ -68,16 +68,16 @@ export const verifyToken = async(req, res, next) => {
       } else {
           const user = await Usuario.findOne({ where: { id: decoded.id } });
           if (!user) {
-              return res.status(403).send('-> Acceso denegado');
+              return res.status(403).send('Acceso denegado');
           }
           req.user = user;
 
-          if (user.privilegio.name === 'Administrador') {
+          if (user.idPrivilegio === 1) {
               next();
-          } else if (user.privilegio.name === 'Docente') {
+          } else if (user.idPrivilegio === 2) {
               next();
           } else {
-              return res.status(403).send(`--> Acceso denegado`);
+              return res.status(403).send('Acceso denegado');
           }
       }
   });

@@ -15,6 +15,7 @@ export const getAllUsers = async (req, res) => {
     const users = await Usuario.findAll({
       limit: pageSize,
       offset,
+      attributes: ['id','user','name', 'password', 'image'],
       include:[
         {
           model:Privilegio,
@@ -25,9 +26,9 @@ export const getAllUsers = async (req, res) => {
 
     res.json(users);
   } catch (error) {
-    console.error(`Error en getAllUsers: ${error.message}`);
+    console.error(`Error en getAllUsers: -> ${error.message}`);
     res.status(500).json({
-      error: `Error en getAllUsers: ${error.message}`
+      error: `Error en getAllUsers: --> ${error.message}`
     });
   }
 };
@@ -37,6 +38,7 @@ export const getUser = async (req, res) => {
       const userId = req.params.id;
       const user = await Usuario.findOne({
         where: { id: userId },
+        attributes: ['user','name', 'password', 'image'],
         include:[
           {
             model:Privilegio,
@@ -61,37 +63,38 @@ export const getUser = async (req, res) => {
   };
   
 
-export const createUser = async (req, res) =>{
+  export const createUser = async (req, res) => {
     try {
-      const user_name = req.body.name;
-      const user_nickname = req.body.user;
-      const user_password = req.body.password;
-      const user_privileges = req.body.privileges;
-  
-      let imagen = ''
-      let imagenPublicId = ''
-      if (req.files.image) {
-        const result = await uploadImage(req.files.image.tempFilePath);
-        await fs.remove(req.files.image.tempFilePath);
-        imagen = result.secure_url
-        imagenPublicId = result.public_id
-      }
-      
-      let passhash = await bcrypt.hash(user_password,10);
-      await Usuario.create({
-        name: user_name,
-        user: user_nickname,
-        password: passhash,
-        idPrivilegio: user_privileges,
-        image: imagen,
-        imagenPublicId: imagenPublicId
-      });
-  
-      res.json({ "message": "Usuario creado" });
+        const user_name = req.body.name;
+        const user_nickname = req.body.user;
+        const user_password = req.body.password;
+        const user_privileges = req.body.idPrivilegio;
+
+        let imagen = '';
+
+        if (req.files && req.files.image) { 
+            const result = await uploadImage(req.files.image.tempFilePath);
+            await fs.remove(req.files.image.tempFilePath);
+            imagen = {
+                url: result.secure_url,
+                public_id: result.public_id
+            };
+        }
+
+        let passhash = await bcrypt.hash(user_password, 10);
+        await Usuario.create({
+            name: user_name,
+            user: user_nickname,
+            password: passhash,
+            idPrivilegio: user_privileges,
+            image: imagen
+        });
+
+        res.json({ "message": "Usuario creado" });
     } catch (error) {
-      res.json({ "message": error.message });
+        res.json({ "message": error.message });
     }
-  };
+};
 
   export const updateUser = async (req, res) => {
   try {
@@ -104,7 +107,7 @@ export const createUser = async (req, res) =>{
     if (req.files && req.files.image) {
       const result = await uploadImage(req.files.image.tempFilePath);
       await fs.remove(req.files.image.tempFilePath);
-      userToUpdate.imageUrl = {
+      userToUpdate.image = {
         url: result.secure_url,
         public_id: result.public_id
       };
@@ -127,17 +130,19 @@ export const deleteUser = async (req, res) => {
         });
       }
       
-      const dataImage = JSON.parse(user.dataValues.imageUrl)
-      dataImage.public_id && await deleteImage(dataImage.public_id)
+      const dataImage = user.image.public_id
+      
+      dataImage && await deleteImage(dataImage)
 
       await Usuario.destroy({
         where: {
           id: req.params.id
         }
       });
+      
   
       res.json({
-        message: 'Usuario eliminado'
+       message: 'Usuario eliminado'
       });
     } catch (error) {
       console.error(`Error en deleteUser: ${error.message}`);
