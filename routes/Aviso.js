@@ -5,7 +5,7 @@ import {
   createAviso,
   updateAviso,
   deleteAviso,
-} from "../controllers/Aviso"
+} from "../controllers/Aviso.js"
 import { verifyToken, isAdmin } from "../controllers/authController.js"
 
 const routerAviso = Router()
