@@ -4,7 +4,7 @@ import {
   getAllRegisters,
   getRegister,
 } from "../controllers/Registro.js"
-import { verifyToken } from "./controllers/authController.js"
+import { verifyToken } from "../controllers/authController.js"
 const Registro = Router()
 
 Registro.get("/", verifyToken, getAllRegisters)

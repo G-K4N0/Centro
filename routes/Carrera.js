@@ -6,7 +6,7 @@ import {
   getCareer,
   updateCareer,
 } from "../controllers/Carrera.js"
-import { verifyToken, isAdmin } from "./controllers/authController.js"
+import { verifyToken, isAdmin } from "../controllers/authController.js"
 
 const routerCareer = Router()
 

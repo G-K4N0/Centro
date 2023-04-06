@@ -6,7 +6,7 @@ import {
   getGroup,
   updateGroup,
 } from "../controllers/Grupo.js"
-import { verifyToken, isAdmin } from "./controllers/authController.js"
+import { verifyToken, isAdmin } from "../controllers/authController.js"
 const routeGroup = Router()
 
 routeGroup.get("/", verifyToken, isAdmin, getAllGroups)

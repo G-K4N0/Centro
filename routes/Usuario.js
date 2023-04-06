@@ -6,7 +6,7 @@ import {
   getUser,
   updateUser,
 } from "../controllers/Usuario.js"
-import { verifyToken, isAdmin } from "./controllers/authController.js"
+import { verifyToken, isAdmin } from "../controllers/authController.js"
 
 const routerUser = Router()
 

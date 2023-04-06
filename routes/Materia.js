@@ -6,7 +6,7 @@ import {
   getTopic,
   updateTopic,
 } from "../controllers/Materia.js"
-import { verifyToken, isAdmin } from "./controllers/authController.js"
+import { verifyToken, isAdmin } from "../controllers/authController.js"
 const topicRoutes = Router()
 
 topicRoutes.get("/", verifyToken, getAllTopics)

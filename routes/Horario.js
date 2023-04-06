@@ -8,7 +8,7 @@ import {
   updateTime,
 } from "../controllers/Horario.js"
 const timeRoute = Router()
-import { verifyToken, isAdmin } from "./controllers/authController.js"
+import { verifyToken, isAdmin } from "../controllers/authController.js"
 
 timeRoute.get("/horario/docente/:id", verifyToken, getTimesbyDocentes)
 timeRoute.get("/", getTimes)

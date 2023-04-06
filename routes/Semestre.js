@@ -6,7 +6,7 @@ import {
   getSemester,
   updateSemester,
 } from "../controllers/Semestre.js"
-import { verifyToken, isAdmin } from "./controllers/authController.js"
+import { verifyToken, isAdmin } from "../controllers/authController.js"
 const semesterRoute = Router()
 
 semesterRoute.get("/", verifyToken, getAllSemesters)

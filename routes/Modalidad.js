@@ -6,7 +6,7 @@ import {
   getMod,
   updateMod,
 } from "../controllers/Modalidad.js"
-import { verifyToken, isAdmin } from "./controllers/authController.js"
+import { verifyToken, isAdmin } from "../controllers/authController.js"
 const modRoutes = Router()
 
 modRoutes.get("/", getAllMods)

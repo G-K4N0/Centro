@@ -6,7 +6,7 @@ import {
   updateLab,
   deleteLab,
 } from "../controllers/Lab.js"
-import { verifyToken, isAdmin } from "./controllers/authController.js"
+import { verifyToken, isAdmin } from "../controllers/authController.js"
 const labRoute = Router()
 
 labRoute.get("/", getAllLabs)

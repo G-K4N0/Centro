@@ -1,5 +1,5 @@
 import { Router } from "express"
-import { isAdmin, verifyToken } from "../controllers/authController.js"
+import { verifyToken, isAdmin } from "../controllers/authController.js"
 import { getAllPrivileges } from "../controllers/Privilegio.js"
 
 const privilegio = Router()

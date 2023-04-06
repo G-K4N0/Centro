@@ -6,7 +6,7 @@ import {
   getType,
   updateType,
 } from "../controllers/Tipo.js"
-import { verifyToken, isAdmin } from "./controllers/authController.js"
+import { verifyToken, isAdmin } from "../controllers/authController.js"
 
 const typeRoute = Router()
 

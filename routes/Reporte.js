@@ -6,7 +6,7 @@ import {
   getReport,
   updateReport,
 } from "../controllers/Reporte.js"
-import { verifyToken } from "./controllers/authController.js"
+import { verifyToken, isAdmin } from "../controllers/authController.js"
 
 const routeReport = Router()
 
