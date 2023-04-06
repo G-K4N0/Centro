@@ -17,7 +17,7 @@ export const login = async (req, res) => {
 
   try {
     const usuario = await Usuario.findOne({
-      attributes: ['id', 'name','user', 'password','image'],
+      attributes: ['id', 'name','user', 'password','image', 'idPrivilegio'],
       include: [{
         model: Privilegio,
         attributes: ['name']
@@ -48,7 +48,7 @@ export const login = async (req, res) => {
     };
     res.cookie('token', token, cookiesOptions);
 
-    res.status(200).json({ token });
+    res.status(200).json({ token, rol:usuario.idPrivilegio });
   } catch (error) {
     res.status(500).json({ message: `Ocurrió un error en el servidor ${error}` });
   }
