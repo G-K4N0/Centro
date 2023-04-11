@@ -39,14 +39,20 @@ export const login = async (req, res) => {
     const token = jwt.sign(
       { id, name, privilegio, image },
       process.env.JWT_SECRET,
-      { expiresIn: process.env.JWT_TIME_EXPIRE }
+      { expiresIn: process.env.JWT_TIME_EXPIRE_ACCESS_TOKEN }
     );
+
+    const refreshToken = jwt.sign(
+  { id, name, privilegio, image },
+  process.env.REFRESH_TOKEN_SECRET,
+  {expiresIn: process.env.JWT_TIME_EXPIRE_REFRESH_TOKEN}
+);
 
     const cookiesOptions = {
       expires: new Date(Date.now() + process.env.JWT_COOKIE_EXPIRES * 24 * 60 * 60 * 1000),
       httpOnly: true
     };
-    res.cookie('token', token, cookiesOptions);
+    res.cookie('token', refreshToken, cookiesOptions);
 
     res.status(200).json({ token, rol:usuario.idPrivilegio });
   } catch (error) {
