@@ -36,22 +36,22 @@ const Usuario = db.define('usuario',{
 });
 
 Usuario.hasMany(Horario,{
-    foreignKey:'idUser',
+    foreignKey:'idUsuario',
     sourceKey:'id'
 })
 
 Horario.belongsTo(Usuario,{
-    foreignKey: 'idUser',
+    foreignKey: 'idUsuario',
     targetId:'id'
 })
 
 Usuario.hasMany(Reporte,{
-    foreignKey:'idUser',
+    foreignKey:'idUsuario',
     sourceKey:'id'
 })
 
 Reporte.belongsTo(Usuario,{
-    foreignKey:'idUser',
+    foreignKey:'idUsuario',
     targetId:'id'
 })
 

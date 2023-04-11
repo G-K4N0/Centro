@@ -16,7 +16,7 @@ const Reporte = db.define('reporte',{
         {
             type:DataTypes.TEXT
         },
-    idUser:{
+    idUsuario:{
         type:DataTypes.INTEGER,
         allowNull:false,
         

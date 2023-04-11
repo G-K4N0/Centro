@@ -22,6 +22,7 @@ const Lab = db.define(
   },
   {
     freezeTableName: true,
+    timestamps: false
   }
 );
 

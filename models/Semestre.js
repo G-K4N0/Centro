@@ -10,11 +10,7 @@ const Semestre = db.define('semestre',{
         primaryKey:true,
         allowNull:false
     },
-    semestre:{
-        type: DataTypes.STRING,
-        allowNull:false
-    },
-    periodo:{
+    name:{
         type: DataTypes.STRING,
         allowNull:false
     }

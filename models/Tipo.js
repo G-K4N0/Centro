@@ -19,12 +19,12 @@ const Tipo = db.define('tipo',{
 });
 
 Tipo.hasMany(Grupo,{
-    foreignKey:'idType',
+    foreignKey:'idTipo',
     sourceKey:'id'
 })
 
 Grupo.belongsTo(Tipo,{
-    foreignKey:'idType',
+    foreignKey:'idTipo',
     targetId:'id'
 })
 

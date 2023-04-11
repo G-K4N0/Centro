@@ -19,12 +19,12 @@ const Fase = db.define('fase',{
 });
 
 Fase.hasMany(Grupo,{
-    foreignKey:'idPhase',
+    foreignKey:'idFase',
     sourceKey:'id'
 })
 
 Grupo.belongsTo(Fase,{
-    foreignKey:'idPhase',
+    foreignKey:'idFase',
     targetId:'id'
 })
 

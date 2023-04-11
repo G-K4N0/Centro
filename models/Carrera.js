@@ -14,16 +14,17 @@ const Carrera = db.define('carrera',{
             allowNull:false
         }
 },{
-    freezeTableName:true
+    freezeTableName:true,
+    timestamps: false
 });
 
 Carrera.hasMany(Grupo,{
-    foreignKey:'idCareer',
+    foreignKey:'idCarrera',
     sourceKey:'id'
 })
 
 Grupo.belongsTo(Carrera,{
-    foreignKey:'idCareer',
+    foreignKey:'idCarrera',
     targetId:'id'
 })
 

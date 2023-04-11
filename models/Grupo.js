@@ -38,12 +38,12 @@ const Grupo = db.define("grupo",{
 });
 
 Grupo.hasMany(Horario,{
-    foreignKey: 'idGroup',
+    foreignKey: 'idGrupo',
     sourceKey:'id'
 })
 
 Horario.belongsTo(Grupo,{
-    foreignKey: 'idGroup',
+    foreignKey: 'idGrupo',
     targetId:'id'
 })
 

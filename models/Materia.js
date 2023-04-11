@@ -17,12 +17,12 @@ const Materia = db.define("materia", {
 });
 
 Materia.hasMany(Horario,{
-  foreignKey:'idTopic',
+  foreignKey:'idMateria',
   sourceKey:'id'
 })
 
 Horario.belongsTo(Materia,{
-  foreignKey: 'idTopic',
+  foreignKey: 'idMateria',
     targetId:'id'
 })
 
