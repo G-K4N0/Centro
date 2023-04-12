@@ -2,7 +2,11 @@ import Materia from '../models/Materia.js'
 
 export const getAllTopics = async (req, res) => {
     try {
-        const topics = await Materia.findAll();
+        const topics = await Materia.findAll(
+            {
+                attributes:['id','name']
+            }
+        );
 
         res.json(topics);
     } catch (error) {
@@ -17,7 +21,8 @@ export const getTopic = async (req, res) => {
         const topic = await Materia.findAll({
             where:{
                 id:req.params.id
-            }
+            },
+            attributes:['id','name']
         });
         res.json(topic);
     } catch (error) {

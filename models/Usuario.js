@@ -2,6 +2,7 @@ import db from "../database/db.js";
 import { DataTypes } from "sequelize";
 import Horario from "./Horario.js";
 import Reporte from "./Reporte.js";
+import Registro from "./Registro.js";
 
 const Usuario = db.define('usuario',{
     id:{
@@ -53,6 +54,15 @@ Usuario.hasMany(Reporte,{
 Reporte.belongsTo(Usuario,{
     foreignKey:'idUsuario',
     targetId:'id'
+})
+Registro.belongsTo(Usuario,{
+    foreignKey: 'idUser',
+    targetId:'id'
+})
+
+Usuario.hasMany(Registro, {
+    foreignKey: 'idUser',
+    sourceKey:'id'
 })
 
 export default Usuario;

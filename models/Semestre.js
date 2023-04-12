@@ -1,7 +1,6 @@
 import db from '../database/db.js';
 import { DataTypes } from 'sequelize';
 import Grupo from './Grupo.js';
-import Registro from './Registro.js';
 
 const Semestre = db.define('semestre',{
     id:{
@@ -30,13 +29,4 @@ Grupo.belongsTo(Semestre,{
     targetId:'id'
 })
 
-Semestre.hasMany(Registro,{
-    foreignKey:'idSemestre',
-    sourceKey:'id'
-})
-
-Registro.belongsTo(Semestre,{
-    foreignKey:'idSemestre',
-    targetId:'id'
-})
 export default Semestre

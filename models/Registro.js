@@ -1,6 +1,10 @@
 import db from '../database/db.js'
 import Lab from './Lab.js';
 import { DataTypes } from 'sequelize'
+import Materia from './Materia.js';
+import Carrera from './Carrera.js';
+import Semestre from './Semestre.js';
+import Usuario from './Usuario.js';
 
 const Registro = db.define('registro',{
     id:{
@@ -41,5 +45,18 @@ Registro.belongsTo(Lab, {
     foreignKey: 'idLab',
     targetKey: 'id'
   });
+  Registro.belongsTo(Materia, {
+    foreignKey: 'idMateria',
+    targetKey: 'id'
+  });
 
+  Registro.belongsTo(Carrera, {
+    foreignKey: 'idCarrera',
+    targetKey: 'id'
+  });
+
+Registro.belongsTo(Semestre,{
+    foreignKey:'idSemestre',
+    targetId:'id'
+})
 export default Registro

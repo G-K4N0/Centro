@@ -1,8 +1,17 @@
 import reportModel from "../models/Reporte.js"
+import Usuario from "../models/Usuario.js"
 
 export const getAllReports = async (req, res) => {
     try {
-        const reports = await reportModel.findAll();
+        const reports = await reportModel.findAll({
+            attributes:['id','note','suggestion','createdAt'],
+            include: [
+                {
+                    model: Usuario,
+                    attributes: ['name']
+                }
+            ]
+        });
         res.json(reports);
     } catch (error) {
         res.json({
@@ -16,7 +25,14 @@ export const getReport = async (req,res) => {
         const report = await reportModel.findAll({
             where:{
                 id:req.params.id
-            }
+            },
+            attributes:['id','note','suggestion','createdAt'],
+            include: [
+                {
+                    model: Usuario,
+                    attributes: ['name']
+                }
+            ]
         });
 
         res.json(report);
