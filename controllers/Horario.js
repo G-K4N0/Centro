@@ -63,7 +63,7 @@ export const getTimes = async (req,res) => {
                     include:[
                         {
                             model:Semestre,
-                            attributes:['semestre']
+                            attributes:['name']
                         },
                         {
                             model:Carrera,
