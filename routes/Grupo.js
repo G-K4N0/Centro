@@ -3,6 +3,7 @@ import {
   createGroup,
   deleteGroup,
   getAllGroups,
+  getGrupos,
   getGroup,
   updateGroup,
 } from "../controllers/Grupo.js"
@@ -10,6 +11,7 @@ import { verifyToken, isAdmin } from "../controllers/authController.js"
 const routeGroup = Router()
 
 routeGroup.get("/", verifyToken, isAdmin, getAllGroups)
+routeGroup.get("/grupos",verifyToken,isAdmin,getGrupos)
 routeGroup.get("/:id", verifyToken, isAdmin, getGroup)
 routeGroup.post("/", verifyToken, isAdmin, createGroup)
 routeGroup.put("/:id", verifyToken, isAdmin, updateGroup)

@@ -5,10 +5,22 @@ import Modalidad from '../models/Modalidad.js';
 import Semestre from '../models/Semestre.js';
 import Tipo from '../models/Tipo.js';
 
+export const getGrupos = async (req, res) => {
+  try {
+   const grupos = await Grupo.findAll(
+     {
+       attributes: ['id', 'name']
+     }
+   );
+    res.status(200).json(grupos)
+  } catch (error) {
+   res.status(404).json({"message": error.message}) 
+  }
+}
 export const getAllGroups = async (req, res) => {
     try {
         const grupos = await Grupo.findAll({
-            attributes: ['name','createdAt'],
+            attributes: ['id','name','createdAt'],
             include: [
                 {
                     model: Carrera,
@@ -46,7 +58,7 @@ export const getGroup = async (req, res) => {
             where:{
                 id:req.params.id
             },
-            attributes: ['name','createdAt'],
+            attributes: ['id','name','createdAt'],
             include: [
                 {
                     model: Carrera,
