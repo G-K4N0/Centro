@@ -24,7 +24,7 @@ export const getTimesbyDocentes = async (req, res) => {
                     include: [
                         {
                             model: Semestre,
-                            attributes: ['semestre']
+                            attributes: ['name']
                         },
                         {
                             model: Carrera,
