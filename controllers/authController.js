@@ -107,5 +107,4 @@ export const logout = (req,res) =>{
   });
 
   return res.redirect('/');
-};
 }
