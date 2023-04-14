@@ -100,5 +100,12 @@ export function isAdmin(req, res, next) {
 
 export const logout = (req,res) =>{
     res.clearCookie('token');
-    return res.redirect('/')
+
+  res.cookie('token', '', {
+    httpOnly: true,
+    expires: new Date(0),
+  });
+
+  return res.redirect('/');
+};
 }
