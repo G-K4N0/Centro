@@ -89,12 +89,12 @@ async function main() {
           );
 
           const fase = await Fase.bulkCreate(
-            [{ name: "Primera" }, { name: "Segunda" }],
+            [{ name: "Primera" }, { name: "Segunda" }, { name: "Sin fase" }],
             { fields: ["name"] }
           );
 
           const modalidad = await Modalidad.bulkCreate(
-            [{ name: "Escolarizada" }, { name: "SemiEscolarizada" }],
+            [{ name: "Escolarizada" }, { name: "SemiEscolarizada" },{ name: "Verano" }],
             { fields: ["name"] }
           );
 
