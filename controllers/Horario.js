@@ -5,16 +5,11 @@ import Materia from '../models/Materia.js';
 import Usuario from '../models/Usuario.js';
 import Semestre from '../models/Semestre.js';
 import Carrera from '../models/Carrera.js';
-import { INTEGER } from 'sequelize';
 
 export const getTimesbyLabs = async (req, res) => {
     try {
-        const userId = req.params.id;
         const data = await Horario.findAll({
-            where: {
-                idUsuario: userId
-            },
-            attributes: ['id', 'inicia', 'finaliza', 'dia', 'idUsuario'],
+            attributes: ['id', 'inicia', 'finaliza', 'dia', 'idUsuario', 'idLab'],
             include: [
                 {
                     model: Materia,
@@ -37,7 +32,7 @@ export const getTimesbyLabs = async (req, res) => {
                 {
                     model: Lab,
                     where: {
-                        ocupado: true
+                        ocupado: true,
                     },
                     attributes: ['name', 'ocupado']
                 },
@@ -100,7 +95,10 @@ export const getTimesbyDocentes = async (req, res) => {
 export const getTimes = async (req, res) => {
     try {
         const data = await Horario.findAll({
-            attributes: ['id', 'inicia', 'finaliza', 'dia'],
+            attributes: ['id', 'inicia', 'finaliza', 'dia','actual'],
+            where:{
+                actual: true
+            },
             include: [
                 {
                     model: Materia,
@@ -172,54 +170,35 @@ export const getTime = async (req, res) => {
 
 export const createTime = async (req, res) => {
     try {
-        const inicia = req.body.inicia
-        const finaliza = req.body.finaliza
-        const dia = req.body.dia
-        const idLab = req.body.idLab
+        const { inicia, finaliza, dia, idLab } = req.body
 
-        //conversion de las horas a enteros 
-        const inputInicia = parseInt((inicia.split(':')[0]) + (inicia.split(':')[1]))
-        const inputFinaliza = parseInt((finaliza.split(':')[0]) + (finaliza.split(':')[1]))
+        const inputInicia = parseInt(inicia.replace(':', ''))
+        const inputFinaliza = parseInt(finaliza.replace(':', ''))
 
-        //obtener un array del laboratorio al que se refiere con sus respectivos horarios
         const labs = await Horario.findAll({
             attributes: ['id', 'inicia', 'finaliza', 'dia', 'idLab', 'idUsuario'],
-            where: {
-                idLab: idLab
-            }
+            where: { idLab }
         })
 
-        if(labs !== null){
-        //comparar el dia en el que toca
-        let dayEqual = []
-        labs.forEach(lab => {
+        if (labs.length > 0) {
+            const dayEqual = labs.filter(lab => lab.dia.includes(dia))
 
-            if (lab.dia.includes(dia)) {
-                dayEqual.push(lab)
+            const encontrado = dayEqual.some(dia => {
+                const iniciaStored = parseInt(dia.inicia.replace(':', ''))
+                const finalizaStored = parseInt(dia.finaliza.replace(':', ''))
+
+                const iniciaEqual = (inputInicia === iniciaStored && inputFinaliza === finalizaStored)
+                const iniciaProblem = (inputInicia > iniciaStored && inputInicia < finalizaStored)
+                const finalizaProblem = (inputFinaliza > iniciaStored && inputFinaliza < finalizaStored)
+                const iniciaCompareStored = (iniciaStored > inputInicia && iniciaStored < inputFinaliza)
+                const finalizaCompareStored = (finalizaStored > inputInicia && finalizaStored < inputFinaliza)
+
+                return iniciaProblem || finalizaProblem || iniciaCompareStored || finalizaCompareStored || iniciaEqual
+            })
+
+            if (encontrado) {
+                return res.json({ message: 'Existe un horario que ya incluye una de las horas ingresadas', encontrado })
             }
-        });
-
-        // comparar los horarios
-        let encontrado = null
-
-
-        dayEqual.forEach(dia => {
-            // Convertir en entero las horas almacenadas
-            const iniciaStored = parseInt((dia.inicia.split(':')[0]) + (dia.inicia.split(':')[1]))
-            const finalizaStored = parseInt((dia.finaliza.split(':')[0]) + (dia.finaliza.split(':')[1]))
-
-            const iniciaProblem = (inputInicia > iniciaStored && inputInicia < finalizaStored)
-            const finalizaProblem = (inputFinaliza > iniciaStored && inputFinaliza < finalizaStored)
-
-            const iniciaCompareStored = (iniciaStored > inputInicia && iniciaStored < inputFinaliza)
-            const finalizaCompareStored = (finalizaStored > inputInicia && finalizaStored < inputFinaliza)
-
-            const flag = iniciaProblem || finalizaProblem || iniciaCompareStored || finalizaCompareStored
-
-            if (flag) encontrado = dia
-        })
-
-         return res.json({ message: 'Existe un horario que ya incluye una de las horas ingresadas',encontrado })
         }
 
         await Horario.create(req.body);
@@ -236,19 +215,82 @@ export const createTime = async (req, res) => {
 
 export const updateTime = async (req, res) => {
     try {
-        const id = req.params.id
+        const id = req.params.id;
+        const inicia = req.body.inicia;
+        const finaliza = req.body.finaliza;
+        const dia = req.body.dia;
+        const idLab = req.body.idLab;
 
-        const toTimeUpdate = await Horario.findByPk(id)
+        //conversion de las horas a enteros 
+        const inputInicia = parseInt((inicia.split(':')[0]) + (inicia.split(':')[1]));
+        const inputFinaliza = parseInt((finaliza.split(':')[0]) + (finaliza.split(':')[1]));
 
-        Object.assign(toTimeUpdate, req.body)
+        //obtener un array de los horarios del laboratorio
+        const labs = await Horario.findAll({
+            attributes: ['id', 'inicia', 'finaliza', 'dia', 'idLab', 'idUsuario'],
+            where: {
+                idLab: idLab
+            }
+        });
 
-        await toTimeUpdate.save()
+        if (labs !== null) {
+            //comparar el dia en el que toca
+            let dayEqual = [];
+            labs.forEach(lab => {
+                if (lab.dia.includes(dia)) {
+                    dayEqual.push(lab);
+                }
+            });
 
-        res.status(200).json({ messaje: "Horario  modificado" })
+            // comparar los horarios
+            let encontrado = null;
+
+            dayEqual.forEach(dia => {
+                if (dia.id !== id) { // ignorar el horario que se está actualizando
+                    // Convertir en entero las horas almacenadas
+                    const iniciaStored = parseInt((dia.inicia.split(':')[0]) + (dia.inicia.split(':')[1]));
+                    const finalizaStored = parseInt((dia.finaliza.split(':')[0]) + (dia.finaliza.split(':')[1]));
+                    
+                    const iniciaEqual = (inputInicia === iniciaStored && inputFinaliza === finalizaStored);
+                    const iniciaProblem = (inputInicia > iniciaStored && inputInicia < finalizaStored);
+                    const finalizaProblem = (inputFinaliza > iniciaStored && inputFinaliza < finalizaStored);
+                    const iniciaCompareStored = (iniciaStored > inputInicia && iniciaStored < inputFinaliza);
+                    const finalizaCompareStored = (finalizaStored > inputInicia && finalizaStored < inputFinaliza);
+
+                    const flag = iniciaProblem || finalizaProblem || iniciaCompareStored || finalizaCompareStored || iniciaEqual;
+
+                    if (flag) encontrado = dia;
+                }
+            });
+
+            if (encontrado) {
+                return res.json({ message: 'Existe un horario que ya incluye una de las horas ingresadas', encontrado });
+            }
+        }
+
+        // Actualizar el horario
+        await toTimeUpdate.update(req.body);
+
+        res.status(200).json({ message: "Horario modificado" });
     } catch (error) {
         res.json({
             "message": error.message
         });
+    }
+}
+
+export const updateOneTimeActual = async (req, res) => {
+    try {
+        const id = req.params.id
+        const timeToUpdate = await Horario.findByPk(id)
+
+        Object.assign(timeToUpdate,req.body)
+
+        await timeToUpdate.save()
+
+        res.status(200).json({message: 'Horarios actualizados'})
+    } catch (error) {
+        
     }
 }
 
