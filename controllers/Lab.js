@@ -44,14 +44,18 @@ export const createLab = async (req, res) => {
 
 export const updateLab = async (req,res) => {
     try {
-        await labModel.update(req.body,{
-            where: {
-                id : req.params.id
-            }
-        });
-        res.json({
-            "message": "Lab actualizado"
-        });
+        const id = req.params.id
+        const labToUpdate = await Lab.findByPk(id)
+
+        Object.assign(labToUpdate, req.body)
+
+        await labToUpdate.save()
+
+        const status = ''
+
+        (req.body.ocupado == 1) ? status = 'Ocupado': status = 'Desocupado'
+
+        res.status(200).json({message:`El laboratorio ahora está ${status}`})
     } catch (error) {
         res.json({
             "message": error.message
