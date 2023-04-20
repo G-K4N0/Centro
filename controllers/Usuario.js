@@ -70,6 +70,14 @@ export const getUser = async (req, res) => {
         const user_password = req.body.password;
         const user_privileges = req.body.idPrivilegio;
 
+        const userFound = await Usuario.findOne({
+          where: { name: user_name}
+        })
+
+        if (userFound !== null) {
+          return res.json({"message": "El docente ya existe en la base de datos"})
+        }
+
         let imagen = '';
 
         if (req.files && req.files.image) { 
