@@ -32,7 +32,12 @@ const Grupo = db.define("grupo",{
     idCarrera:{
         type: DataTypes.SMALLINT,
         allowNull:false
-    }
+    },
+    actual: {
+      type: DataTypes.BOOLEAN,
+      allowNull: false,
+      defaultValue: true
+    },
 },{
     freezeTableName:true
 });
