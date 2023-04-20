@@ -3,18 +3,22 @@ import {
   createTime,
   deleteTime,
   getTimesbyDocentes,
+  getTimesbyLabs,
   getTime,
   getTimes,
   updateTime,
+  updateOneTimeActual
 } from "../controllers/Horario.js"
 const timeRoute = Router()
 import { verifyToken, isAdmin } from "../controllers/authController.js"
 
-timeRoute.get("/horario/docente/:id", verifyToken, getTimesbyDocentes)
+timeRoute.get("/horarios/lab", getTimesbyLabs)
+timeRoute.get("/horarios/docente/:id", verifyToken, getTimesbyDocentes)
 timeRoute.get("/", getTimes)
-timeRoute.get("/horarios/:id", getTime)
-timeRoute.post("/horarios", verifyToken, isAdmin, createTime)
-timeRoute.put("/horarios/:id", verifyToken, isAdmin, updateTime)
-timeRoute.delete("/horarios/:id", verifyToken, isAdmin, deleteTime)
+timeRoute.get("/horarios/one:id", getTime)
+timeRoute.post("/horarios/create", createTime)
+timeRoute.put("/horarios/update/:id", updateTime)
+timeRoute.put("/horarios/update/one/:id", updateOneTimeActual)
+timeRoute.delete("/horarios/delete/:id", verifyToken, isAdmin, deleteTime)
 
 export default timeRoute
