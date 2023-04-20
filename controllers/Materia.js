@@ -34,10 +34,20 @@ export const getTopic = async (req, res) => {
 
 export const createTopic = async (req, res) => {
     try {
+        const name = req.body.name
+        
+        const materiaFound = await Materia.findOne({
+            where: {name}
+        })
+
+        if (materiaFound !== null) {
+            return res.json({"message": `La materia ${materiaFound.name } ya existe`})
+        }
+
         await Materia.create(req.body);
 
         res.json({
-            "message": "Materia añadida"
+            "message": "Materia añadida con éxito"
         })
     } catch (error) {
         res.json({
