@@ -65,4 +65,9 @@ Usuario.hasMany(Registro, {
     sourceKey:'id'
 })
 
+Registro.belongsTo(Usuario,{
+    foreignKey: 'idUser',
+    targetId:'id'
+})
+
 export default Usuario;

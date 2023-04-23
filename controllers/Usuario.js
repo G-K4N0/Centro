@@ -33,6 +33,34 @@ export const getAllUsers = async (req, res) => {
   }
 };
 
+export const getUserDocente = async (req, res) => {
+  try {
+   const page = parseInt(req.query.page || 1);
+    const pageSize = parseInt(req.query.pageSize || 10);
+
+    const offset = (page - 1) * pageSize;
+
+    const users = await Usuario.findAll({
+      limit: pageSize,
+      offset,
+      attributes:['id','name'],
+      include: [
+        {
+          model: Privilegio,
+          where: {
+            name: 'Docente'
+          }
+        }
+      ]
+    })
+    
+    res.status(200).json(users)
+    
+  } catch (error) {
+    
+  }
+}
+
 export const getUser = async (req, res) => {
     try {
       const userId = req.params.id;

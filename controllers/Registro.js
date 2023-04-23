@@ -11,7 +11,7 @@ export const getAllRegisters = async (req, res) => {
         {
           model: Lab,
           required: true,
-          attributes: ['name', 'ocupado']
+          attributes: ['id','name', 'ocupado']
         },
         {
             model: Usuario,

@@ -4,6 +4,7 @@ import Fase from '../models/Fase.js';
 import Modalidad from '../models/Modalidad.js';
 import Semestre from '../models/Semestre.js';
 import Tipo from '../models/Tipo.js';
+import Horario from '../models/Horario.js';
 
 export const getGrupos = async (req, res) => {
     try {
@@ -12,7 +13,13 @@ export const getGrupos = async (req, res) => {
                 attributes: ['id', 'name'],
                 where: {
                     actual: true
-                }
+                },
+                include: [
+                    {
+                        model: Tipo,
+                        attributes: ['name']
+                    }
+                ]
             }
         );
         res.status(200).json(grupos)
@@ -23,7 +30,7 @@ export const getGrupos = async (req, res) => {
 export const getAllGroups = async (req, res) => {
     try {
         const grupos = await Grupo.findAll({
-            attributes: ['id', 'name', 'actual','createdAt'],
+            attributes: ['id', 'name', 'actual', 'createdAt'],
             include: [
                 {
                     model: Carrera,
@@ -96,18 +103,18 @@ export const getGroup = async (req, res) => {
 
 export const createGroup = async (req, res) => {
     try {
-        
+
         const name = req.body.name
-        const tipo = req.body.tipo
+        const tipo = req.body.idTipo
 
         const foundGroup = await Grupo.findOne({
-            where: {name, tipo}
+            where: { name, idTipo: tipo }
         })
 
         if (foundGroup !== null) {
-            return res.status(200).json({message: 'El grupo ya existe'})
+            return res.status(200).json({ message: 'El grupo ya existe' })
         }
-        
+
         await Grupo.create(req.body);
         res.json({
             "message": "Grupo creado"
@@ -121,6 +128,10 @@ export const createGroup = async (req, res) => {
 
 export const updateGroup = async (req, res) => {
     try {
+        const group = await Grupo.findOne({ where: { nombre: req.body.nombre } });
+        if (group && group.id !== req.params.id) {
+            return res.status(400).json({ message: 'El nombre del grupo ya está en uso' });
+        }
         await Grupo.update(req.body, {
             where: {
                 id: req.params.id
@@ -136,17 +147,19 @@ export const updateGroup = async (req, res) => {
     }
 }
 
+
 export const deleteGroup = async (req, res) => {
     try {
-        await Grupo.destroy({
-            where: {
-                id: req.params.id
-            }
-        });
-        res.json({ "message": "Grupo eliminado" });
+        const id = req.params.id;
+
+        const horarios = await Horario.findAll({ where: { idGrupo: id } });
+        if (horarios.length > 0) {
+            return res.status(400).json({ message: 'No se puede eliminar el grupo porque tiene horarios asociados' });
+        }
+
+        await Grupo.destroy({ where: { id } });
+        res.json({ message: 'Grupo eliminado' });
     } catch (error) {
-        res.json({
-            "message": error.message
-        });
+        res.status(500).json({ message: error.message });
     }
 }

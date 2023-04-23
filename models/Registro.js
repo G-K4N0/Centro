@@ -4,59 +4,63 @@ import { DataTypes } from 'sequelize'
 import Materia from './Materia.js';
 import Carrera from './Carrera.js';
 import Semestre from './Semestre.js';
-import Usuario from './Usuario.js';
 
-const Registro = db.define('registro',{
-    id:{
-        type:DataTypes.INTEGER,
-        primaryKey:true,
+const Registro = db.define('registro', {
+    id: {
+        type: DataTypes.INTEGER,
+        primaryKey: true,
         autoIncrement: true,
     },
-    idLab:{
-        type:DataTypes.SMALLINT,
-        allowNull:false
+    idLab: {
+        type: DataTypes.SMALLINT,
+        allowNull: false
     },
-    idUser:{
-        type:DataTypes.INTEGER,
-        allowNull:false
+    idUser: {
+        type: DataTypes.INTEGER,
+        allowNull: false
     },
-    idMateria:{
-        type:DataTypes.INTEGER,
-        allowNull:false
+    idMateria: {
+        type: DataTypes.INTEGER,
+        allowNull: false
     },
-    idCarrera:{
-        type:DataTypes.SMALLINT,
-        allowNull:false
+    idCarrera: {
+        type: DataTypes.SMALLINT,
+        allowNull: false
     },
-    idSemestre:{
-        type:DataTypes.SMALLINT,
-        allowNull:false
+    idSemestre: {
+        type: DataTypes.SMALLINT,
+        allowNull: false
     },
-    actividad:{
-        type:DataTypes.STRING,
-        allowNull:false,
+    actividad: {
+        type: DataTypes.STRING,
+        allowNull: false,
         defaultValue: 'Clase'
+    },
+    enHorario: {
+        type: DataTypes.BOOLEAN,
+        allowNull: false,
+        defaultValue: true
     }
-},{
-    freezeTableName:true
+}, {
+    freezeTableName: true
 })
 
 Registro.belongsTo(Lab, {
     foreignKey: 'idLab',
     targetKey: 'id'
-  });
-  Registro.belongsTo(Materia, {
+});
+Registro.belongsTo(Materia, {
     foreignKey: 'idMateria',
     targetKey: 'id'
-  });
+});
 
-  Registro.belongsTo(Carrera, {
+Registro.belongsTo(Carrera, {
     foreignKey: 'idCarrera',
     targetKey: 'id'
-  });
+});
 
-Registro.belongsTo(Semestre,{
-    foreignKey:'idSemestre',
-    targetId:'id'
+Registro.belongsTo(Semestre, {
+    foreignKey: 'idSemestre',
+    targetId: 'id'
 })
 export default Registro

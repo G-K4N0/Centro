@@ -5,6 +5,7 @@ import Materia from '../models/Materia.js';
 import Usuario from '../models/Usuario.js';
 import Semestre from '../models/Semestre.js';
 import Carrera from '../models/Carrera.js';
+import Tipo from '../models/Tipo.js'
 
 export const getTimesbyLabs = async (req, res) => {
     try {
@@ -115,6 +116,10 @@ export const getTimes = async (req, res) => {
                         {
                             model: Carrera,
                             attributes: ['name']
+                        },
+                        {
+                            model: Tipo,
+                            attributes: ['name']
                         }
                     ]
                 },
@@ -175,6 +180,9 @@ export const createTime = async (req, res) => {
         const inputInicia = parseInt(inicia.replace(':', ''))
         const inputFinaliza = parseInt(finaliza.replace(':', ''))
 
+        if (inputInicia === inputFinaliza) {
+            return res.status(200).json({message: 'No pudes agregar la misma hora para el inicio y la finalización'})
+        }
         const labs = await Horario.findAll({
             attributes: ['id', 'inicia', 'finaliza', 'dia', 'idLab', 'idUsuario'],
             where: { idLab }
