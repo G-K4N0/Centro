@@ -75,10 +75,41 @@ export const getRegister = async (req, res) => {
 };
 
 export const createRegister = async (req, res) => {
+  const { idLab, idUser, idMateria, idCarrera, idSemestre, actividad } =
+    req.body;
+
   try {
-    await Registro.create(req.body);
-    res.json({ message: "Uso de lab actualizado" });
+    // Verificar si el laboratorio está disponible
+    const lab = await Lab.findByPk(idLab);
+    if (!lab) {
+      return res.status(404).json({ message: "Laboratorio no encontrado" });
+    }
+    if (lab.ocupado) {
+      return res.status(409).json({ message: "Laboratorio ocupado" });
+    }
+
+    // Crear registro
+    const registro = await Registro.create({
+      idLab,
+      idUser,
+      idMateria,
+      idCarrera,
+      idSemestre,
+      actividad,
+      enHorario: true,
+    });
+
+    // Marcar laboratorio como ocupado
+    await lab.update({ ocupado: true });
+
+    // Establecer temporizador para desocupar el laboratorio
+    const tiempo = 60 * 1000; // 1 minuto
+    setTimeout(async () => {
+      await lab.update({ ocupado: false });
+    }, tiempo);
+
+    res.json({ message: "Registro creado exitosamente" });
   } catch (error) {
-    res.json({ message: error.message });
+    res.status(500).json({ message: error.message });
   }
-};
+}
