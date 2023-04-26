@@ -39,7 +39,7 @@ export const handleRefreshToken = async (req, res) => {
         { expiresIn: process.env.JWT_TIME_EXPIRE_ACCESS_TOKEN }
       );
   
-      res.status(200).json({ rol:usuario.idPrivilegio, token });
+      res.status(200).json({token, rol:usuario.idPrivilegio});
     } catch (error) {
       res.status(403).json({ message: `El token de refresco no es válido ${error}` });
     }

@@ -7,8 +7,8 @@ import {
 import { verifyToken } from "../controllers/authController.js"
 const Registro = Router()
 
-Registro.get("/", verifyToken, getAllRegisters)
+Registro.get("/", getAllRegisters)
 Registro.get("/:id", verifyToken, getRegister)
-Registro.post("/", verifyToken, createRegister)
+Registro.post("/create/", createRegister)
 
 export default Registro

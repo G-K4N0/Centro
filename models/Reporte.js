@@ -7,12 +7,16 @@ const Reporte = db.define('reporte',{
         primaryKey:true,
         autoIncrement: true
     },
-    note:
+  idLab:{
+    type:DataTypes.SMALLINT,
+    allowNull:false
+  },
+    problema:
         {
             type:DataTypes.TEXT,
             allowNull:false
         },
-    suggestion:
+    descripcion:
         {
             type:DataTypes.TEXT
         },

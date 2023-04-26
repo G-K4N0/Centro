@@ -1,9 +1,6 @@
 import db from '../database/db.js'
-import Lab from './Lab.js';
 import { DataTypes } from 'sequelize'
-import Materia from './Materia.js';
-import Carrera from './Carrera.js';
-import Semestre from './Semestre.js';
+import Horario from './Horario.js'
 
 const Registro = db.define('registro', {
     id: {
@@ -11,25 +8,9 @@ const Registro = db.define('registro', {
         primaryKey: true,
         autoIncrement: true,
     },
-    idLab: {
-        type: DataTypes.SMALLINT,
-        allowNull: false
-    },
-    idUser: {
-        type: DataTypes.INTEGER,
-        allowNull: false
-    },
-    idMateria: {
-        type: DataTypes.INTEGER,
-        allowNull: false
-    },
-    idCarrera: {
-        type: DataTypes.SMALLINT,
-        allowNull: false
-    },
-    idSemestre: {
-        type: DataTypes.SMALLINT,
-        allowNull: false
+    idHorario:{
+      type:DataTypes.INTEGER,
+      allowNull:true,  
     },
     actividad: {
         type: DataTypes.STRING,
@@ -45,22 +26,8 @@ const Registro = db.define('registro', {
     freezeTableName: true
 })
 
-Registro.belongsTo(Lab, {
-    foreignKey: 'idLab',
+Registro.belongsTo(Horario, {
+    foreignKey: 'idHorario',
     targetKey: 'id'
-});
-Registro.belongsTo(Materia, {
-    foreignKey: 'idMateria',
-    targetKey: 'id'
-});
-
-Registro.belongsTo(Carrera, {
-    foreignKey: 'idCarrera',
-    targetKey: 'id'
-});
-
-Registro.belongsTo(Semestre, {
-    foreignKey: 'idSemestre',
-    targetId: 'id'
 })
 export default Registro

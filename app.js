@@ -72,7 +72,7 @@ app.use("/", timeRoutes);
 app.use("/materias", topicRoutes);
 app.use("/tipos", typeRoutes);
 app.use("/usuarios", userRoutes);
-app.use("/registro", Registro);
+app.use("/registros", Registro);
 app.use("/avisos", routerAviso);
 app.use("/", login);
 

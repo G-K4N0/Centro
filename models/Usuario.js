@@ -55,19 +55,5 @@ Reporte.belongsTo(Usuario,{
     foreignKey:'idUsuario',
     targetId:'id'
 })
-Registro.belongsTo(Usuario,{
-    foreignKey: 'idUser',
-    targetId:'id'
-})
-
-Usuario.hasMany(Registro, {
-    foreignKey: 'idUser',
-    sourceKey:'id'
-})
-
-Registro.belongsTo(Usuario,{
-    foreignKey: 'idUser',
-    targetId:'id'
-})
 
 export default Usuario;

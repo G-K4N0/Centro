@@ -42,6 +42,29 @@ export const createLab = async (req, res) => {
     }
 }
 
+import Lab from "../models/Lab.js";
+
+export const updateLabOcupado = async (req, res) => {
+  const { id } = req.params;
+  const { ocupado } = req.body;
+
+  try {
+    const lab = await Lab.findByPk(id);
+    if (!lab) {
+      return res.status(404).json({ message: "Laboratorio no encontrado" });
+    }
+
+    lab.ocupado = ocupado;
+    await lab.save();
+
+    return res.json(lab);
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ message: "Internal server error" });
+  }
+}
+
+
 export const updateLab = async (req,res) => {
     try {
         const id = req.params.id
@@ -51,11 +74,7 @@ export const updateLab = async (req,res) => {
 
         await labToUpdate.save()
 
-        const status = ''
-
-        (req.body.ocupado == 1) ? status = 'Ocupado': status = 'Desocupado'
-
-        res.status(200).json({message:`El laboratorio ahora está ${status}`})
+        res.status(200).json({message:'El laboratorio ha sido actualizado exitosamente'})
     } catch (error) {
         res.json({
             "message": error.message
