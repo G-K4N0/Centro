@@ -57,7 +57,7 @@ export const getTimesbyDocentes = async (req, res) => {
             where: {
                 idUsuario: userId
             },
-            attributes: ['id', 'inicia', 'finaliza', 'dia', 'idUsuario'],
+            attributes: ['id', 'inicia', 'finaliza', 'dia'],
             include: [
                 {
                     model: Materia,
@@ -79,11 +79,7 @@ export const getTimesbyDocentes = async (req, res) => {
                 },
                 {
                     model: Lab,
-                    attributes: ['name', 'ocupado']
-                },
-                {
-                    model: Usuario,
-                    attributes: ['name', 'image']
+                    attributes: ['name']
                 }
             ]
         });
