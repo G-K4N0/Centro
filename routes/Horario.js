@@ -13,7 +13,7 @@ const timeRoute = Router()
 import { verifyToken, isAdmin } from "../controllers/authController.js"
 
 timeRoute.get("/horarios/lab", getTimesbyLabs)
-timeRoute.get("/horarios/docente/:id", verifyToken, getTimesbyDocentes)
+timeRoute.get("/horarios/docente/:id", getTimesbyDocentes)
 timeRoute.get("/", getTimes)
 timeRoute.get("/horarios/one/:id", getTime)
 timeRoute.post("/horarios/create", createTime)

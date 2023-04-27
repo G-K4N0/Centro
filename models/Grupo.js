@@ -1,6 +1,7 @@
 import db from "../database/db.js";
 import { DataTypes } from "sequelize";
 import Horario from "./Horario.js";
+import SinHorario from "./SinHorario.js";
 
 const Grupo = db.define("grupo",{
     id:{
@@ -50,6 +51,11 @@ Grupo.hasMany(Horario,{
 Horario.belongsTo(Grupo,{
     foreignKey: 'idGrupo',
     targetId:'id'
+})
+
+Horario.belongsTo(SinHorario,{
+    foreignKey: 'idGrupo',
+    targetId: 'id'
 })
 
 export default Grupo

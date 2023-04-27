@@ -10,7 +10,7 @@ const Registro = db.define('registro', {
     },
     idHorario:{
       type:DataTypes.INTEGER,
-      allowNull:true,  
+      allowNull:false,  
     },
     actividad: {
         type: DataTypes.STRING,
