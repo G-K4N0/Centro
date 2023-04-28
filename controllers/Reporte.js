@@ -4,7 +4,7 @@ import Usuario from "../models/Usuario.js"
 export const getAllReports = async (req, res) => {
     try {
         const reports = await reportModel.findAll({
-            attributes:['id','note','suggestion','createdAt'],
+            attributes:['id','problema','descripcion','createdAt','idLab'],
             include: [
                 {
                     model: Usuario,
