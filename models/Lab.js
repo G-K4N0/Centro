@@ -36,10 +36,4 @@ Horario.belongsTo(Lab, {
   foreignKey: "idLab",
   targetId: "id",
 });
-
-Lab.belongsTo(SinHorario,{
-  foreignKey:"idLab",
-  targetId:"id"
-})
-
 export default Lab;

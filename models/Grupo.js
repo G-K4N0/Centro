@@ -53,9 +53,4 @@ Horario.belongsTo(Grupo,{
     targetId:'id'
 })
 
-Horario.belongsTo(SinHorario,{
-    foreignKey: 'idGrupo',
-    targetId: 'id'
-})
-
 export default Grupo
