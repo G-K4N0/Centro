@@ -8,6 +8,7 @@ import {
   getCountRegistersByUser,
   getCountRegistersByLabs,
   getCountRegistersByCarreras,
+  getCountRegistersByWeek,
   getCountRegistersByMonth
 } from "../controllers/Registro.js"
 import { verifyToken } from "../controllers/authController.js"
@@ -20,6 +21,7 @@ Registro.get("/conteo/labs", getCountRegistersByLabs)
 Registro.get("/conteo/materias", getCountRegistersByMateria)
 Registro.get("/conteo/carreras", getCountRegistersByCarreras)
 Registro.get("/conteo/mes", getCountRegistersByMonth)
+Registro.get("/conteo/semanas", getCountRegistersByWeek)
 Registro.get("/:id", verifyToken, getRegister)
 Registro.post("/create/", createRegister)
 

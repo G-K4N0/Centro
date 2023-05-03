@@ -110,6 +110,7 @@ export const getRegister = async (req, res) => {
 
 export const createRegister = async (req, res) => {
   const { idHorario, actividad, enHorario } = req.body;
+  let message = '';
 
   try {
     const horario = await Horario.findByPk(idHorario);
@@ -124,34 +125,36 @@ export const createRegister = async (req, res) => {
     const lab = await Lab.findByPk(idLab);
 
     if (lab.ocupado) {
-      return res.json({ message: 'El laboratorio aún está ocupado' });
+      message = 'El laboratorio aún está ocupado';
+    } else {
+      await lab.update({ ocupado: true });
+
+      await Registro.create({
+        idHorario,
+        actividad,
+        enHorario,
+      });
+
+      const tiempoDesocupado = 30 * 1000;
+      setTimeout(async () => {
+        await lab.update({ ocupado: false });
+      }, tiempoDesocupado);
+
+      const tiempoMensaje = 20 * 1000;
+      setTimeout(() => {
+        message = `El laboratorio ${idLab} se desocupará en 10 segundos`;
+      }, tiempoDesocupado - tiempoMensaje);
+
+      message = 'Registro creado exitosamente';
     }
-
-    await lab.update({ ocupado: true });
-
-    await Registro.create({
-      idHorario,
-      actividad,
-      enHorario,
-    });
-
-    const tiempoDesocupado = 30 * 1000;
-    setTimeout(async () => {
-      await lab.update({ ocupado: false });
-    }, tiempoDesocupado);
-
-    const tiempoMensaje = 20 * 1000;
-    setTimeout(() => {
-      res.json({ message: `El laboratorio ${idLab} se desocupará en 10 segundos` });
-    }, tiempoDesocupado - tiempoMensaje);
-
-    res.json({ message: 'Registro creado exitosamente' });
   } catch (error) {
     console.error(error);
-    res.status(500).json({ message: 'Error al crear el registro' });
+    message = 'Error al crear el registro';
+    res.status(500);
   }
-};
 
+  res.json({ message });
+};
 
 export const getCountRegistersByActivities = async (req, res) => {
   try {
@@ -178,45 +181,109 @@ export const getCountRegistersByActivities = async (req, res) => {
 
 export const getCountRegistersByMateria = async (req, res) => {
   try {
-    const total = await db.query("select  materia.name,count(materia.name) as value from registro rigth join horario on idHorario = horario.id  join materia on idMateria = materia.id group by materia.name", {type: QueryTypes.SELECT})
-    res.json(total)
+    const total = await db.query(`SELECT  materia.name as name,count(materia.name) as value 
+    FROM registro rigth 
+    JOIN horario on idHorario = horario.id  
+    JOIN materia on idMateria = materia.id
+    GROUP BY materia.name`, {type: QueryTypes.SELECT});
+    res.json(total);
   } catch (error) {
-    res.json(error)
+    res.json(error);
   }
-}
+};
 
 export const getCountRegistersByUser = async (req, res) => {
   try {
-    const total = await db.query("select  usuario.name,count(usuario.name) as value from registro rigth join horario on idHorario = horario.id  join usuario on idUsuario = usuario.id group by usuario.name", {type: QueryTypes.SELECT})
-    res.json(total)
+    const total = await db.query(`SELECT Docente, COUNT(Docente) AS Total  FROM (   
+      SELECT usuario.name as Docente FROM registro 
+      JOIN horario on idHorario = horario.id 
+      JOIN lab on idLab = lab.id 
+      JOIN materia on idMateria = materia.id 
+      JOIN grupo on idGrupo = grupo.id 
+      JOIN semestre on idSemestre= semestre.id 
+      JOIN carrera on idCarrera = carrera.id 
+      JOIN fase on idFase = fase.id 
+      JOIN modalidad on idMod = modalidad.id 
+      JOIN tipo on idTipo = tipo.id 
+      JOIN usuario on idUsuario = usuario.id ) 
+      AS subquery 
+      GROUP BY Docente`, {type: QueryTypes.SELECT});
+    res.json(total);
   } catch (error) {
-    res.json(error)
+    res.json(error);
   }
-}
+};
+
 
 export const getCountRegistersByLabs = async (req, res) => {
   try {
-    const total = await db.query("select lab.name,count(lab.name) as value from registro join horario on idHorario = horario.id  join lab on idLab = lab.id group by lab.name", {type: QueryTypes.SELECT})
-    res.json(total)
+    const total = await db.query(`SELECT lab.name ,count(lab.name) as value FROM registro
+      JOIN horario on idHorario = horario.id JOIN lab on idLab = lab.id  
+      GROUP BY lab.name`, {type: QueryTypes.SELECT});
+    res.json(total);
   } catch (error) {
-    res.json(error)
+    res.json(error);
   }
-}
+};
+
 
 export const getCountRegistersByCarreras = async (req, res) => {
   try {
-    const total = await db.query("select  carrera.name,count(carrera.name) as value from registro rigth join horario on idHorario = horario.id join grupo on idGrupo = grupo.id join carrera on idCarrera = carrera.id group by carrera.name", {type:QueryTypes.SELECT})
-    res.json(total)
+    const total = await db.query(`SELECT carrera.name, count(carrera.name) AS Total FROM registro  
+    JOIN horario on idHorario = horario.id 
+    JOIN lab on idLab = lab.id 
+    JOIN grupo on idGrupo = grupo.id 
+    JOIN carrera on idCarrera = carrera.id 
+    GROUP BY carrera.name`)
+    res.json(total);
   } catch (error) {
-    res.json(error)
+    res.json(error);
+  }
+};
+
+export const getCountRegistersByWeek = async (req, res) => {
+  try {
+    const total = await db.query(`SELECT WEEK(Registrado) AS Mes, Docente,Materia, Carrera,Laboratorio,COUNT(*) AS Total FROM  (   
+    SELECT registro.id, registro.actividad, DATE(registro.createdAt) as Registrado, horario.inicia, horario.finaliza, horario.dia, lab.name as Laboratorio, materia.name as Materia, grupo.name as Grupo, semestre.name as Semestre, usuario.name as Docente, carrera.name as Carrera, fase.name as Fase, modalidad.name as Modalidad, tipo.name as Tipo 
+    FROM registro 
+    JOIN horario on idHorario = horario.id    
+    JOIN lab on idLab = lab.id    
+    JOIN materia on idMateria = materia.id    
+    JOIN grupo on idGrupo = grupo.id    
+    JOIN semestre on idSemestre= semestre.id    
+    JOIN carrera on idCarrera = carrera.id    
+    JOIN fase on idFase = fase.id    
+    JOIN modalidad on idMod = modalidad.id    
+    JOIN tipo on idTipo = tipo.id 
+    JOIN usuario on idUsuario = usuario.id ) 
+    AS subquery GROUP BY WEEK(Registrado), Materia, Laboratorio, Carrera, Docente`,
+     {type: QueryTypes.SELECT});
+    res.json(total);
+  } catch (error) {
+    res.json(error);
   }
 }
 
 export const getCountRegistersByMonth = async (req, res) => {
   try {
-    const data = await db.query("SELECT MONTH(Registrado) AS name, Docente,Materia, Carrera,Laboratorio,COUNT(*) AS value FROM (   SELECT registro.id, registro.actividad, DATE(registro.createdAt) as Registrado, horario.inicia, horario.finaliza, horario.dia,          lab.name as Laboratorio, materia.name as Materia, grupo.name as Grupo, semestre.name as Semestre,          usuario.name as Docente, carrera.name as Carrera, fase.name as Fase, modalidad.name as Modalidad, tipo.name as Tipo   FROM registro   JOIN horario on idHorario = horario.id   JOIN lab on idLab = lab.id   JOIN materia on idMateria = materia.id   JOIN grupo on idGrupo = grupo.id   JOIN semestre on idSemestre= semestre.id   JOIN carrera on idCarrera = carrera.id   JOIN fase on idFase = fase.id   JOIN modalidad on idMod = modalidad.id   JOIN tipo on idTipo = tipo.id   JOIN usuario on idUsuario = usuario.id ) AS subquery GROUP BY MONTH(Registrado), Materia, Laboratorio, Carrera, Docente", {type:QueryTypes.SELECT})
-  res.json(data)
+    const data = await db.query(`SELECT MONTH(Registrado) AS Mes, Docente,Materia, Carrera,Laboratorio,COUNT(*) AS Total 
+    FROM (   SELECT registro.id, registro.actividad, DATE(registro.createdAt) as Registrado, horario.inicia, horario.finaliza, horario.dia,
+    lab.name as Laboratorio, materia.name as Materia, grupo.name as Grupo, semestre.name as Semestre,
+    usuario.name as Docente, carrera.name as Carrera, fase.name as Fase, modalidad.name as Modalidad, tipo.name as Tipo
+    FROM registro
+    JOIN horario on idHorario = horario.id
+    JOIN lab on idLab = lab.id
+    JOIN materia on idMateria = materia.id
+    JOIN grupo on idGrupo = grupo.id
+    JOIN semestre on idSemestre= semestre.id
+    JOIN carrera on idCarrera = carrera.id
+    JOIN fase on idFase = fase.id
+    JOIN modalidad on idMod = modalidad.id
+    JOIN tipo on idTipo = tipo.id
+    JOIN usuario on idUsuario = usuario.id ) AS subquery GROUP BY MONTH(Registrado), Materia, Laboratorio, Carrera, Docente`, {type: QueryTypes.SELECT});
+    res.json(data);
   } catch (error) {
-    res.json(error)
+    res.json(error);
   }
-}
+};
+
