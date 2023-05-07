@@ -20,6 +20,12 @@ const Reporte = db.define('reporte',{
         {
             type:DataTypes.TEXT
         },
+  revisado:
+  {
+    type: DataTypes.BOOLEAN,
+    allowNull: false,
+    defaultValue: false
+  },
     idUsuario:{
         type:DataTypes.INTEGER,
         allowNull:false,

@@ -99,13 +99,22 @@ export function isAdmin(req, res, next) {
   next();
 }
 
-export const logout = (req,res) =>{
-    res.clearCookie('token');
+export const logout = (req, res) => {
+  const { token } = req.cookies;
+  
+  if (!token) {
+    return res.redirect('/');
+  }
 
-  res.cookie('token', '', {
-    httpOnly: true,
+  const cookiesOptions = {
     expires: new Date(0),
-  });
+    httpOnly: true,
+    sameSite: 'strict'
+  };
+
+  res.clearCookie('token');
+  res.cookie('token', '', cookiesOptions);
 
   return res.redirect('/');
-}
+};
+
