@@ -6,6 +6,8 @@ import Usuario from '../models/Usuario.js';
 import Semestre from '../models/Semestre.js';
 import Carrera from '../models/Carrera.js';
 import Tipo from '../models/Tipo.js'
+import db from '../database/db.js'
+import { QueryTypes } from 'sequelize';
 
 export const getTimesbyLabs = async (req, res) => {
     try {
@@ -135,6 +137,29 @@ export const getTimes = async (req, res) => {
     }
 }
 
+export const getTimesByDays = async (req, res) => {
+    try {
+        const day = req.params.day
+        const consulta = await db.query(`select dia, inicia, finaliza,carrera.name AS carrera,
+        grupo.name AS grupo,
+        materia.name AS materia,
+        lab.name AS laboratorio,
+        lab.ocupado AS ocupado,
+        usuario.name AS docente,
+        usuario.image AS image
+        from horario 
+        JOIN grupo on idGrupo=grupo.id 
+        JOIN carrera on idCarrera=carrera.id 
+        JOIN materia on idMateria=materia.id 
+        JOIN lab on idLab=lab.id 
+        JOIN usuario on idUsuario=usuario.id 
+        where dia='${day}'`
+        ,{type: QueryTypes.SELECT})
+        res.json(consulta)
+    } catch (error) {
+        res.json(error)
+    }
+}
 export const getTime = async (req, res) => {
     try {
         const horario = await Horario.findOne({
@@ -225,11 +250,9 @@ export const updateTime = async (req, res) => {
         const dia = req.body.dia;
         const idLab = req.body.idLab;
 
-        //conversion de las horas a enteros 
         const inputInicia = parseInt((inicia.split(':')[0]) + (inicia.split(':')[1]));
         const inputFinaliza = parseInt((finaliza.split(':')[0]) + (finaliza.split(':')[1]));
 
-        //obtener un array de los horarios del laboratorio
         const labs = await Horario.findAll({
             attributes: ['id', 'inicia', 'finaliza', 'dia', 'idLab', 'idUsuario'],
             where: {
@@ -238,7 +261,6 @@ export const updateTime = async (req, res) => {
         });
 
         if (labs !== null) {
-            //comparar el dia en el que toca
             let dayEqual = [];
             labs.forEach(lab => {
                 if (lab.dia.includes(dia)) {
@@ -246,12 +268,10 @@ export const updateTime = async (req, res) => {
                 }
             });
 
-            // comparar los horarios
             let encontrado = null;
 
             dayEqual.forEach(dia => {
-                if (dia.id !== id) { // ignorar el horario que se está actualizando
-                    // Convertir en entero las horas almacenadas
+                if (dia.id !== id) {
                     const iniciaStored = parseInt((dia.inicia.split(':')[0]) + (dia.inicia.split(':')[1]));
                     const finalizaStored = parseInt((dia.finaliza.split(':')[0]) + (dia.finaliza.split(':')[1]));
                     
@@ -272,7 +292,6 @@ export const updateTime = async (req, res) => {
             }
         }
 
-        // Actualizar el horario
         await toTimeUpdate.update(req.body);
 
         res.status(200).json({ message: "Horario modificado" });
