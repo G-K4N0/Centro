@@ -8,6 +8,7 @@ import Carrera from '../models/Carrera.js';
 import Tipo from '../models/Tipo.js'
 import db from '../database/db.js'
 import { QueryTypes } from 'sequelize';
+import moment from 'moment';
 
 export const getTimesbyLabs = async (req, res) => {
     try {
@@ -54,37 +55,23 @@ export const getTimesbyLabs = async (req, res) => {
 
 export const getTimesbyDocentes = async (req, res) => {
     try {
-        const userId = req.params.id;
-        const data = await Horario.findAll({
-            where: {
-                idUsuario: userId
-            },
-            attributes: ['id', 'inicia', 'finaliza', 'dia'],
-            include: [
-                {
-                    model: Materia,
-                    attributes: ['name']
-                },
-                {
-                    model: Grupo,
-                    attributes: ['name'],
-                    include: [
-                        {
-                            model: Semestre,
-                            attributes: ['name']
-                        },
-                        {
-                            model: Carrera,
-                            attributes: ['name']
-                        }
-                    ]
-                },
-                {
-                    model: Lab,
-                    attributes: ['name']
-                }
-            ]
-        });
+        moment.locale('es');
+        const day = moment().format('dddd');
+        const capitalizedDay = day.charAt(0).toUpperCase() + day.slice(1);
+        const idUser = req.params.id;
+        const data = await db.query(`SELECT inicia, finaliza, dia,
+        usuario.name AS Usuario,
+        materia.name AS Materia,
+        lab.name AS Laboratorio,
+        grupo.name AS Grupo,
+        carrera.name as Carrera
+        FROM horario
+        JOIN usuario ON idUsuario=usuario.id
+        JOIN materia ON idMateria = materia.id
+        JOIN lab ON idLab=lab.id
+        JOIN grupo ON idGrupo=grupo.id
+        JOIN carrera ON idCarrera=carrera.id
+        where usuario.id = ${idUser} AND dia like '${capitalizedDay}'`, {type: QueryTypes.SELECT})
         res.json(data);
     } catch (error) {
         res.json(error.message);
@@ -139,7 +126,9 @@ export const getTimes = async (req, res) => {
 
 export const getTimesByDays = async (req, res) => {
     try {
-        const day = req.params.day
+        moment.locale('es');
+        const day = moment().format('dddd');
+        const capitalizedDay = day.charAt(0).toUpperCase() + day.slice(1);
         const consulta = await db.query(`select dia, inicia, finaliza,carrera.name AS carrera,
         grupo.name AS grupo,
         materia.name AS materia,
@@ -153,7 +142,7 @@ export const getTimesByDays = async (req, res) => {
         JOIN materia on idMateria=materia.id 
         JOIN lab on idLab=lab.id 
         JOIN usuario on idUsuario=usuario.id 
-        where dia='${day}'`
+        where dia='${capitalizedDay}'`
         ,{type: QueryTypes.SELECT})
         res.json(consulta)
     } catch (error) {

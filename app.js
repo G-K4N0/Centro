@@ -3,6 +3,8 @@ import cors from "cors";
 import db from "./database/db.js";
 import fileUpload from "express-fileupload";
 import bcrypt from "bcryptjs";
+import moment from 'moment';
+import 'moment-timezone';
 
 import dotenv from "dotenv";
 dotenv.config({ path: "./.env" });
@@ -35,6 +37,8 @@ import { credentials } from "./config/credentials.js";
 import Carrera from "./models/Carrera.js";
 import Lab from "./models/Lab.js";
 import Semestre from "./models/Semestre.js";
+
+moment.tz.setDefault('America/Mexico_City');
 
 const app = express();
 const PORT = process.env.PORT || 8080;
