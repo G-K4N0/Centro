@@ -58,20 +58,12 @@ export const getTimesbyDocentes = async (req, res) => {
         moment.locale('es');
         const day = moment().format('dddd');
         const capitalizedDay = day.charAt(0).toUpperCase() + day.slice(1);
-        const idUser = req.params.id;
-        const data = await db.query(`SELECT inicia, finaliza, dia,
-        usuario.name AS Usuario,
-        materia.name AS Materia,
-        lab.name AS Laboratorio,
-        grupo.name AS Grupo,
-        carrera.name as Carrera
-        FROM horario
-        JOIN usuario ON idUsuario=usuario.id
-        JOIN materia ON idMateria = materia.id
-        JOIN lab ON idLab=lab.id
-        JOIN grupo ON idGrupo=grupo.id
-        JOIN carrera ON idCarrera=carrera.id
-        where usuario.id = ${idUser} AND dia like '${capitalizedDay}'`, {type: QueryTypes.SELECT})
+        const idUser = parseInt(req.params.id);
+        
+        const data = await db.query(
+            `CALL GetHorarioByDocentes(${idUser}, '${capitalizedDay}')`
+        );
+        
         res.json(data);
     } catch (error) {
         res.json(error.message);
