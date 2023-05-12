@@ -5,7 +5,7 @@ export const getAllAvisos = async (req, res) => {
         const avisos = await Aviso.findAll({
             attributes:['titulo', 'detalles']
         });
-        res.status(200).json({ data: avisos })
+        res.status(200).json(avisos)
     } catch (error) {
         res.status(500).json({ error: 'No se pudo obtener la lista de avisos.' })
     }
