@@ -4,7 +4,7 @@ import db from "./database/db.js";
 import fileUpload from "express-fileupload";
 import bcrypt from "bcryptjs";
 import moment from 'moment';
-import 'moment-timezone';
+import { DateTime } from "luxon";
 
 import dotenv from "dotenv";
 dotenv.config({ path: "./.env" });
@@ -38,7 +38,7 @@ import Carrera from "./models/Carrera.js";
 import Lab from "./models/Lab.js";
 import Semestre from "./models/Semestre.js";
 
-moment.tz.setDefault('America/Mexico_City');
+DateTime.local().setZone('America/Mexico_City');
 
 const app = express();
 const PORT = process.env.PORT || 8080;

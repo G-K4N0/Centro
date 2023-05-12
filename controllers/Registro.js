@@ -12,6 +12,8 @@ import Tipo from "../models/Tipo.js";
 import Fase from "../models/Fase.js";
 import db from '../database/db.js'
 import { QueryTypes } from "sequelize";
+import { DateTime } from "luxon";
+
 export const getAllRegisters = async (req, res) => {
   try {
     const registers = await Registro.findAll({
@@ -109,44 +111,54 @@ export const getRegister = async (req, res) => {
 };
 
 export const createRegister = async (req, res) => {
-  const { idHorario, actividad, enHorario } = req.body;
+  const { idHorario, actividad, laboratorio } = req.body;
   let message = '';
 
   try {
     const horario = await Horario.findByPk(idHorario);
 
-    const inicia = parseInt(horario.inicia.split(':')[0]);
-    const finaliza = parseInt(horario.finaliza.split(':')[0]);
-    const horasClase = finaliza - inicia;
+    const finaliza = DateTime.fromFormat(horario.finaliza, 'HH:mm')
+    const horaActual = DateTime.local()
+    const horasClase = finaliza.diff(horaActual)
 
-    const duracion = horasClase * 3600;
-    const idLab = horario.idLab;
+    const duracion = horasClase.as('milliseconds');
 
-    const lab = await Lab.findByPk(idLab);
-
-    if (lab.ocupado) {
-      message = 'El laboratorio aún está ocupado';
+    if (duracion <= 0) {
+      message = 'Ya finalizó el horario asignado'
     } else {
-      await lab.update({ ocupado: true });
+      message = duracion
+      const idLab = horario.idLab;
 
-      await Registro.create({
-        idHorario,
-        actividad,
-        enHorario,
-      });
+      const lab = await Lab.findByPk(idLab);
 
-      const tiempoDesocupado = 30 * 1000;
-      setTimeout(async () => {
-        await lab.update({ ocupado: false });
-      }, tiempoDesocupado);
+      if (lab.name !== laboratorio) {
+        message = 'No es el laboratorio asignado'
+      } else {
+        if (lab.ocupado) {
+          message = 'El laboratorio aún está ocupado';
+        } else {
+          await lab.update({ ocupado: true });
 
-      const tiempoMensaje = 20 * 1000;
-      setTimeout(() => {
-        message = `El laboratorio ${idLab} se desocupará en 10 segundos`;
-      }, tiempoDesocupado - tiempoMensaje);
+          await Registro.create({
+            idHorario,
+            actividad
+          });
 
-      message = 'Registro creado exitosamente';
+          const tiempoDesocupado = duracion;
+          setTimeout(async () => {
+            await lab.update({ ocupado: false });
+          }, tiempoDesocupado);
+
+          /*const tiempoMensaje = duracion * 3400;
+          setTimeout(() => {
+            message = `El laboratorio ${idLab} se desocupará en 10 segundos`;
+          }, tiempoDesocupado - tiempoMensaje);*/
+
+          message = 'Registro creado exitosamente';
+        }
+      }
     }
+
   } catch (error) {
     console.error(error);
     message = 'Error al crear el registro';
@@ -160,7 +172,7 @@ export const getCountRegistersByActivities = async (req, res) => {
   try {
     const total = await db.query(`SELECT actividad AS name,count(actividad) AS value  FROM registro  
     JOIN horario on idHorario = horario.id  
-    GROUP BY actividad`, {type:QueryTypes.SELECT})
+    GROUP BY actividad`, { type: QueryTypes.SELECT })
     res.json(total)
   } catch (error) {
     console.error(error);
@@ -174,7 +186,7 @@ export const getCountRegistersByMateria = async (req, res) => {
     FROM registro rigth 
     JOIN horario on idHorario = horario.id  
     JOIN materia on idMateria = materia.id
-    GROUP BY materia.name`, {type: QueryTypes.SELECT});
+    GROUP BY materia.name`, { type: QueryTypes.SELECT });
     res.json(total);
   } catch (error) {
     res.json(error);
@@ -196,7 +208,7 @@ export const getCountRegistersByUser = async (req, res) => {
       JOIN tipo on idTipo = tipo.id 
       JOIN usuario on idUsuario = usuario.id ) 
       AS subquery 
-      GROUP BY Docente`, {type: QueryTypes.SELECT});
+      GROUP BY Docente`, { type: QueryTypes.SELECT });
     res.json(total);
   } catch (error) {
     res.json(error);
@@ -208,7 +220,7 @@ export const getCountRegistersByLabs = async (req, res) => {
   try {
     const total = await db.query(`SELECT lab.name ,count(lab.name) as value FROM registro
       JOIN horario on idHorario = horario.id JOIN lab on idLab = lab.id  
-      GROUP BY lab.name`, {type: QueryTypes.SELECT});
+      GROUP BY lab.name`, { type: QueryTypes.SELECT });
     res.json(total);
   } catch (error) {
     res.json(error);
@@ -223,7 +235,7 @@ export const getCountRegistersByCarreras = async (req, res) => {
     JOIN lab on idLab = lab.id 
     JOIN grupo on idGrupo = grupo.id 
     JOIN carrera on idCarrera = carrera.id 
-    GROUP BY carrera.name`, {type: QueryTypes.SELECT})
+    GROUP BY carrera.name`, { type: QueryTypes.SELECT })
     res.json(total);
   } catch (error) {
     res.json(error);
@@ -246,7 +258,7 @@ export const getCountRegistersByWeek = async (req, res) => {
     JOIN tipo on idTipo = tipo.id 
     JOIN usuario on idUsuario = usuario.id ) 
     AS subquery GROUP BY WEEK(Registrado), Materia, Laboratorio, Carrera, Docente`,
-     {type: QueryTypes.SELECT});
+      { type: QueryTypes.SELECT });
     res.json(total);
   } catch (error) {
     res.json(error);
@@ -259,7 +271,7 @@ export const getCountRegistersByMonth = async (req, res) => {
     const data = await db.query(`
     SELECT COUNT(MONTH(createdAt)) AS value, MONTHNAME(createdAt) AS month, YEAR(createdAt) as year from registro 
     GROUP BY MONTHNAME(createdAt), 
-    YEAR(createdAt);`, {type: QueryTypes.SELECT});
+    YEAR(createdAt);`, { type: QueryTypes.SELECT });
     res.json(data);
   } catch (error) {
     res.json(error);
