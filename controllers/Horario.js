@@ -7,8 +7,8 @@ import Semestre from '../models/Semestre.js';
 import Carrera from '../models/Carrera.js';
 import Tipo from '../models/Tipo.js'
 import db from '../database/db.js'
-import { QueryTypes } from 'sequelize';
-import moment from 'moment';
+import { QueryTypes, Op } from 'sequelize';
+import { DateTime } from "luxon";
 
 export const getTimesbyLabs = async (req, res) => {
     try {
@@ -55,13 +55,20 @@ export const getTimesbyLabs = async (req, res) => {
 
 export const getTimesbyDocentes = async (req, res) => {
     try {
-        moment.locale('es');
-        const day = moment().format('dddd');
+        const now = DateTime.local();
+        const day = now.setLocale('es').toFormat('cccc');
         const capitalizedDay = day.charAt(0).toUpperCase() + day.slice(1);
         const idUser = parseInt(req.params.id);
         
         const data = await db.query(
-            `CALL GetHorarioByDocentes(${idUser}, '${capitalizedDay}')`
+            `CALL GetHorarioByDocentes(:idUser, :capitalizedDay)`,
+            {
+                replacements: {
+                    idUser,
+                    capitalizedDay
+                },
+                type: QueryTypes.SELECT
+            }
         );
         
         res.json(data);
@@ -72,9 +79,13 @@ export const getTimesbyDocentes = async (req, res) => {
 
 export const getTimes = async (req, res) => {
     try {
-        const data = await Horario.findAll({
-            attributes: ['id', 'inicia', 'finaliza', 'dia','actual'],
-            where:{
+        const page = parseInt(req.query.page) || 1;
+        const limit = parseInt(req.query.limit) || 10;
+        const offset = (page - 1) * limit;
+
+        const data = await Horario.findAndCountAll({
+            attributes: ['id', 'inicia', 'finaliza', 'dia', 'actual'],
+            where: {
                 actual: true
             },
             include: [
@@ -108,13 +119,24 @@ export const getTimes = async (req, res) => {
                     model: Usuario,
                     attributes: ['name', 'image']
                 }
-            ]
-        })
-        res.json(data)
+            ],
+            limit: limit,
+            offset: offset
+        });
+
+        const totalPages = Math.ceil(data.count / limit);
+
+        res.json({
+            totalItems: data.count,
+            totalPages: totalPages,
+            currentPage: page,
+            times: data.rows
+        });
     } catch (error) {
-        res.json(error.message)
+        res.json(error.message);
     }
-}
+};
+
 
 export const getTimesByDays = async (req, res) => {
     try {
@@ -177,39 +199,47 @@ export const getTime = async (req, res) => {
 
 export const createTime = async (req, res) => {
     try {
-        const { inicia, finaliza, dia, idLab } = req.body
+        const { inicia, finaliza, dia, idLab, idUsuario } = req.body
 
         const inputInicia = parseInt(inicia.replace(':', ''))
         const inputFinaliza = parseInt(finaliza.replace(':', ''))
 
         if (inputInicia === inputFinaliza) {
-            return res.status(200).json({message: 'No pudes agregar la misma hora para el inicio y la finalización'})
+            return res.status(200).json({message: 'No puedes agregar la misma hora para el inicio y la finalización'})
+        }
+
+        if (inputFinaliza < inputInicia) {
+            return res.status(200).json({message: 'No puedes agregar una hora de finalización pasada'})
         }
         const labs = await Horario.findAll({
             attributes: ['id', 'inicia', 'finaliza', 'dia', 'idLab', 'idUsuario'],
             where: { idLab }
-        })
-
-        if (labs.length > 0) {
-            const dayEqual = labs.filter(lab => lab.dia.includes(dia))
-
-            const encontrado = dayEqual.some(dia => {
-                const iniciaStored = parseInt(dia.inicia.replace(':', ''))
-                const finalizaStored = parseInt(dia.finaliza.replace(':', ''))
-
-                const iniciaEqual = (inputInicia === iniciaStored && inputFinaliza === finalizaStored)
-                const iniciaProblem = (inputInicia > iniciaStored && inputInicia < finalizaStored)
-                const finalizaProblem = (inputFinaliza > iniciaStored && inputFinaliza < finalizaStored)
-                const iniciaCompareStored = (iniciaStored > inputInicia && iniciaStored < inputFinaliza)
-                const finalizaCompareStored = (finalizaStored > inputInicia && finalizaStored < inputFinaliza)
-
-                return iniciaProblem || finalizaProblem || iniciaCompareStored || finalizaCompareStored || iniciaEqual
-            })
-
-            if (encontrado) {
-                return res.json({ message: 'Existe un horario que ya incluye una de las horas ingresadas', encontrado })
+          });
+          
+          if (labs.length > 0) {
+            const overlappingLab = labs.find(lab => {
+              const iniciaStored = parseInt(lab.inicia.replace(':', ''));
+              const finalizaStored = parseInt(lab.finaliza.replace(':', ''));
+          
+              const iniciaOverlap = inputInicia < finalizaStored && iniciaStored < inputFinaliza;
+              const finalizaOverlap = inputFinaliza > iniciaStored && finalizaStored > inputInicia;
+          
+              return lab.dia.includes(dia) && (iniciaOverlap || finalizaOverlap);
+            });
+          
+            if (overlappingLab) {
+              return res.json({ message: 'Existe un horario que ya incluye una de las horas ingresadas', encontrado: true });
             }
-        }
+          }
+          
+          const overlappingLabWithDifferentUser = await Horario.findOne({
+            attributes: ['id', 'inicia', 'finaliza', 'dia', 'idLab', 'idUsuario'],
+            where: { dia, idLab: { [Op.ne]: idLab }, idUsuario }
+          });
+          
+          if (overlappingLabWithDifferentUser) {
+            return res.json({ message: 'El usuario tiene asignado el mismo horario en el mismo día en otro laboratorio', encontrado: true });
+          }                    
 
         await Horario.create(req.body);
         res.json({
