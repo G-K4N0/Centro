@@ -123,9 +123,6 @@ export const createRegister = async (req, res) => {
 
     const duracion = horasClase.as('milliseconds');
 
-    if (duracion <= 0) {
-      message = 'Ya finalizó el horario asignado'
-    } else {
       message = duracion
       const idLab = horario.idLab;
 
@@ -133,31 +130,30 @@ export const createRegister = async (req, res) => {
 
       if (lab.name !== laboratorio) {
         message = 'No es el laboratorio asignado'
+      } else if(duracion <= 0) {
+        message = 'Ya finalizó el horario asignado'
+      } else if (lab.ocupado) {
+        message = 'El laboratorio aún está ocupado';
       } else {
-        if (lab.ocupado) {
-          message = 'El laboratorio aún está ocupado';
-        } else {
-          await lab.update({ ocupado: true });
+        await lab.update({ ocupado: true });
 
-          await Registro.create({
-            idHorario,
-            actividad
-          });
+        await Registro.create({
+          idHorario,
+          actividad
+        });
 
-          const tiempoDesocupado = duracion;
-          setTimeout(async () => {
-            await lab.update({ ocupado: false });
-          }, tiempoDesocupado);
+        const tiempoDesocupado = duracion;
+        setTimeout(async () => {
+          await lab.update({ ocupado: false });
+        }, tiempoDesocupado);
 
-          /*const tiempoMensaje = duracion * 3400;
-          setTimeout(() => {
-            message = `El laboratorio ${idLab} se desocupará en 10 segundos`;
-          }, tiempoDesocupado - tiempoMensaje);*/
+        /*const tiempoMensaje = duracion * 3400;
+        setTimeout(() => {
+          message = `El laboratorio ${idLab} se desocupará en 10 segundos`;
+        }, tiempoDesocupado - tiempoMensaje);*/
 
-          message = 'Registro creado exitosamente';
-        }
+        message = 'Registro creado exitosamente';
       }
-    }
 
   } catch (error) {
     console.error(error);
