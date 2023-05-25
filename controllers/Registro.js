@@ -17,7 +17,7 @@ import { DateTime } from "luxon";
 export const getAllRegisters = async (req, res) => {
   try {
     const registers = await Registro.findAll({
-      attributes: ['enHorario', 'actividad', 'createdAt'],
+      attributes: ['id','enHorario', 'actividad', 'createdAt','alumnos'],
       include: [
         {
           model: Horario,
@@ -113,17 +113,18 @@ export const getRegister = async (req, res) => {
 export const createRegister = async (req, res) => {
   const { idHorario, actividad, laboratorio } = req.body;
   let message = '';
-
+  let id = null
   try {
     const horario = await Horario.findByPk(idHorario);
 
+    const inicia = DateTime.fromFormat(horario.inicia, 'HH:mm')
     const finaliza = DateTime.fromFormat(horario.finaliza, 'HH:mm')
     const horaActual = DateTime.local()
     const horasClase = finaliza.diff(horaActual)
 
+    const inInterval = (inicia <= horaActual && horaActual < finaliza)
     const duracion = horasClase.as('milliseconds');
 
-      message = duracion
       const idLab = horario.idLab;
 
       const lab = await Lab.findByPk(idLab);
@@ -134,13 +135,13 @@ export const createRegister = async (req, res) => {
         message = 'Ya finalizó el horario asignado'
       } else if (lab.ocupado) {
         message = 'El laboratorio aún está ocupado';
-      } else {
+      } else if(inInterval) {
         await lab.update({ ocupado: true });
 
-        await Registro.create({
+        const registro = await Registro.create({
           idHorario,
           actividad
-        });
+        }, { returning: true });
 
         const tiempoDesocupado = duracion;
         setTimeout(async () => {
@@ -151,8 +152,10 @@ export const createRegister = async (req, res) => {
         setTimeout(() => {
           message = `El laboratorio ${idLab} se desocupará en 10 segundos`;
         }, tiempoDesocupado - tiempoMensaje);*/
-
+        id = registro.id
         message = 'Registro creado exitosamente';
+      }else {
+        message='No es el horario indicado'
       }
 
   } catch (error) {
@@ -160,8 +163,11 @@ export const createRegister = async (req, res) => {
     message = 'Error al crear el registro';
     res.status(500);
   }
-
-  res.json({ message });
+  if (id != null) {
+    res.json({ message, id });  
+  } else {
+    res.json({ message });
+  }
 };
 
 export const getCountRegistersByActivities = async (req, res) => {
@@ -273,3 +279,17 @@ export const getCountRegistersByMonth = async (req, res) => {
     res.json(error);
   }
 };
+
+export const updateRegister = async (req, res) => {
+  try {
+    const id = parseInt(req.params.id)
+    const registerToUppdate = await Registro.findByPk(id);
+    Object.assign(registerToUppdate, req.body)
+
+    await registerToUppdate.save()
+
+    res.json({"message": "El registro a sido completado"})
+  } catch (error) {
+    res.json({message: error.message})
+  }
+}

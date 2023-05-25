@@ -61,14 +61,7 @@ export const getTimesbyDocentes = async (req, res) => {
         const idUser = parseInt(req.params.id);
         
         const data = await db.query(
-            `CALL GetHorarioByDocentes(:idUser, :capitalizedDay)`,
-            {
-                replacements: {
-                    idUser,
-                    capitalizedDay
-                },
-                type: QueryTypes.SELECT
-            }
+            `CALL GetHorarioByDocentes(${idUser}, '${capitalizedDay}')`,
         );
         
         res.json(data);
@@ -140,8 +133,8 @@ export const getTimes = async (req, res) => {
 
 export const getTimesByDays = async (req, res) => {
     try {
-        moment.locale('es');
-        const day = moment().format('dddd');
+        const now = DateTime.local();
+        const day = now.setLocale('es').toFormat('cccc');
         const capitalizedDay = day.charAt(0).toUpperCase() + day.slice(1);
         const consulta = await db.query(`select dia, inicia, finaliza,carrera.name AS carrera,
         grupo.name AS grupo,
@@ -234,7 +227,7 @@ export const createTime = async (req, res) => {
           
           const overlappingLabWithDifferentUser = await Horario.findOne({
             attributes: ['id', 'inicia', 'finaliza', 'dia', 'idLab', 'idUsuario'],
-            where: { dia, idLab: { [Op.ne]: idLab }, idUsuario }
+            where: { dia,inicia,finaliza , idLab: { [Op.ne]: idLab }, idUsuario }
           });
           
           if (overlappingLabWithDifferentUser) {
@@ -313,20 +306,23 @@ export const updateTime = async (req, res) => {
     }
 }
 
-export const updateOneTimeActual = async (req, res) => {
+export const updateManyTimesActual = async (req, res) => {
     try {
-        const id = req.params.id
-        const timeToUpdate = await Horario.findByPk(id)
+      const { ids, actual } = req.body
 
-        Object.assign(timeToUpdate,req.body)
-
-        await timeToUpdate.save()
-
-        res.status(200).json({message: 'Horarios actualizados'})
+      if (!ids || !actual) {
+        return res.status(400).json({ message: 'Faltan parámetros requeridos' })
+      }
+  
+      await Horario.update({ actual }, { where: { id: ids } })
+  
+      res.status(200).json({ message: 'Horarios actualizados' })
     } catch (error) {
-        
+      console.error(error)
+      res.status(500).json({ message: 'Error al actualizar los horarios' })
     }
-}
+  }
+  
 
 export const deleteTime = async (req, res) => {
     try {
@@ -334,13 +330,13 @@ export const deleteTime = async (req, res) => {
             where: {
                 id: req.params.id
             }
-        });
+        })
         res.json({
             "message": "Horario eliminado"
-        });
+        })
     } catch (error) {
         res.json({
             "message": error.message
-        });
+        })
     }
 }
