@@ -34,7 +34,18 @@ export const login = async (req, res) => {
       return res.status(401).json({ message: `Usuario y/o contraseña incorrecta ${validPass}` });
     }
 
-    const { id,name, privilegio, image } = usuario;
+    let url = ''
+    if (usuario.image !== null) {
+       url = usuario.image
+    }
+    const { id, name, privilegio } = usuario
+
+    let image = ''
+    if (url !== '') {
+      image = urlString(url)
+    } else {
+      image = url
+    }
 
     const token = jwt.sign(
       { id, name, privilegio, image },
@@ -51,7 +62,7 @@ export const login = async (req, res) => {
     const cookiesOptions = {
       expires: new Date(Date.now() + process.env.JWT_COOKIE_EXPIRES * 24 * 60 * 60 * 1000),
       httpOnly: true,
-      sameSite: 'strict'
+      sameSite: 'Lax'
     };
     res.cookie('token', refreshToken, cookiesOptions);
 
@@ -59,6 +70,15 @@ export const login = async (req, res) => {
   } catch (error) {
     res.status(500).json({ message: `Ocurrió un error en el servidor ${error}` });
   }
+}
+
+function urlString(url) {
+  const stringUrl = url.url
+  const arrayUrl = stringUrl.split("upload");
+
+  const urlModified = arrayUrl[0] + "upload/w_1000,c_fill,ar_1:1,g_auto,r_max,bo_5px_solid_rgb:FFA500,b_rgb:262c35" + arrayUrl[1].replace('svg','jpg');
+  const public_id = url.public_id
+  return {url: urlModified, public_id }
 }
 
 export const verifyToken = async(req, res, next) => {
@@ -109,7 +129,7 @@ export const logout = (req, res) => {
   const cookiesOptions = {
     expires: new Date(0),
     httpOnly: true,
-    sameSite: 'strict'
+    sameSite: 'Lax'
   };
 
   res.clearCookie('token');
