@@ -9,7 +9,8 @@ import {
   getCountRegistersByLabs,
   getCountRegistersByCarreras,
   getCountRegistersByWeek,
-  getCountRegistersByMonth
+  getCountRegistersByMonth,
+  updateRegister
 } from "../controllers/Registro.js"
 import { verifyToken } from "../controllers/authController.js"
 const Registro = Router()
@@ -24,5 +25,6 @@ Registro.get("/conteo/mes", getCountRegistersByMonth)
 Registro.get("/conteo/semanas", getCountRegistersByWeek)
 Registro.get("/:id", verifyToken, getRegister)
 Registro.post("/create/", createRegister)
+Registro.put("/complete/:id", updateRegister)
 
 export default Registro
