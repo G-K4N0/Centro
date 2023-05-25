@@ -119,7 +119,7 @@ export const createRegister = async (req, res) => {
 
     const inicia = DateTime.fromFormat(horario.inicia, 'HH:mm')
     const finaliza = DateTime.fromFormat(horario.finaliza, 'HH:mm')
-    const horaActual = DateTime.local()
+    const horaActual = DateTime.local().setZone('America/Mexico_City')
     const horasClase = finaliza.diff(horaActual)
 
     const inInterval = (inicia <= horaActual && horaActual < finaliza)
