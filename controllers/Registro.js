@@ -122,7 +122,7 @@ export const createRegister = async (req, res) => {
     const horaActual = DateTime.local().setZone('America/Mexico_City')
     const horasClase = finaliza.diff(horaActual)
 
-    const inInterval = (inicia <= horaActual && horaActual < finaliza)
+const estaEnHorario = horaActual.isAfter(inicia) && horaActual.isBefore(finaliza);
     const duracion = horasClase.as('milliseconds');
 
       const idLab = horario.idLab;
@@ -131,11 +131,11 @@ export const createRegister = async (req, res) => {
 
       if (lab.name !== laboratorio) {
         message = 'No es el laboratorio asignado'
-      } else if(!inInterval) {
+      } else if(!estaEnHorario) {
         message = `No es la hora asignada ${horaActual}`
       } else if (lab.ocupado) {
         message = 'El laboratorio aún está ocupado';
-      } else if(inInterval) {
+      } else if(estaEnHorario) {
         await lab.update({ ocupado: true });
 
         const registro = await Registro.create({
