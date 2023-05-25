@@ -131,8 +131,8 @@ export const createRegister = async (req, res) => {
 
       if (lab.name !== laboratorio) {
         message = 'No es el laboratorio asignado'
-      } else if(duracion <= 0) {
-        message = `Ya finalizó el horario asignado ${horaActual}`
+      } else if(!inInterval) {
+        message = `No es la hora asignada ${horaActual}`
       } else if (lab.ocupado) {
         message = 'El laboratorio aún está ocupado';
       } else if(inInterval) {
