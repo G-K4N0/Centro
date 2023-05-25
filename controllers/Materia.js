@@ -1,20 +1,49 @@
 import Materia from '../models/Materia.js'
+import { Sequelize } from 'sequelize'
 
 export const getAllTopics = async (req, res) => {
     try {
-        const topics = await Materia.findAll(
-            {
-                attributes:['id','name']
-            }
-        );
+        const page = parseInt(req.query.page) || 1
+        const limit = parseInt(req.query.limit) || 10
+        const offset = (page - 1) * limit
 
-        res.json(topics);
+        const {count, rows:topics} = await Materia.findAndCountAll(
+            {
+                attributes:['id','name'],
+                where: {
+                    
+                },
+                limit: limit,
+                offset: offset
+            });
+
+        const totalPages = Math.ceil(count / limit)
+        res.json({
+            totalItems: count,
+            totalPages,
+            currentPage: page,
+            topics
+        });
     } catch (error) {
         res.json({
             "message": error.message
         });
     }
 }
+
+export const getTopicsForAdd = async (req, res) => {
+    try {
+        const topic = await Materia.findAll({
+            attributes:['id','name']
+        });
+        res.json({topic});
+    } catch (error) {
+        res.json({
+            "message": error.message
+        });
+    }
+}
+
 
 export const getTopic = async (req, res) => {
     try {
@@ -35,10 +64,13 @@ export const getTopic = async (req, res) => {
 export const createTopic = async (req, res) => {
     try {
         const name = req.body.name
-        
         const materiaFound = await Materia.findOne({
-            where: {name}
-        })
+            where: {
+                name: {
+                    [Sequelize.Op.eq]: req.body.name
+                }
+            }
+        });
 
         if (materiaFound !== null) {
             return res.json({"message": `La materia ${materiaFound.name } ya existe`})

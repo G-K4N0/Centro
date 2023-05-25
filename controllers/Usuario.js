@@ -8,27 +8,33 @@ import bcrypt from 'bcryptjs';
 export const getAllUsers = async (req, res) => {
   try {
     const page = parseInt(req.query.page || 1);
-    const pageSize = parseInt(req.query.pageSize || 10);
+    const limit = parseInt(req.query.limit || 10);
 
-    const offset = (page - 1) * pageSize;
+    const offset = (page - 1) * limit;
 
-    const users = await Usuario.findAll({
-      limit: pageSize,
-      offset,
-      attributes: ['id','user','name', 'password', 'image'],
-      include:[
+    const { count, rows: users } = await Usuario.findAndCountAll({
+      limit: limit,
+      offset: offset,
+      attributes: ['id', 'user', 'name', 'password', 'image'],
+      include: [
         {
-          model:Privilegio,
-          attributes: ['name']
-        }
-      ]
+          model: Privilegio,
+          attributes: ['name'],
+        },
+      ],
     });
 
-    res.json(users);
+    const totalPages = Math.ceil(count / limit);
+    res.json({
+      totalItems: count,
+      totalPages,
+      currentPage: page,
+      users,
+    });
   } catch (error) {
     console.error(`Error en getAllUsers: -> ${error.message}`);
     res.status(500).json({
-      error: `Error en getAllUsers: --> ${error.message}`
+      error: `Error en getAllUsers: --> ${error.message}`,
     });
   }
 };

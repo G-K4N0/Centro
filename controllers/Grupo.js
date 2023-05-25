@@ -29,7 +29,12 @@ export const getGrupos = async (req, res) => {
 }
 export const getAllGroups = async (req, res) => {
     try {
-        const grupos = await Grupo.findAll({
+        const page = parseInt(req.query.page || 1)
+        const limit = parseInt(req.query.limit || 10)
+        const offset = (page - 1) * limit
+        const { count, rows: grupos} = await Grupo.findAndCountAll({
+            limit: limit,
+            offset: offset,
             attributes: ['id', 'name', 'actual', 'createdAt'],
             include: [
                 {
@@ -54,7 +59,14 @@ export const getAllGroups = async (req, res) => {
                 }
             ]
         });
-        res.status(200).json(grupos);
+
+        const totalPages = Math.ceil(count / limit)
+        res.status(200).json({
+            totalItems: count,
+            totalPages,
+            currentPage: page,
+            grupos
+        });
     } catch (error) {
         res.json({
             "message": error.message
