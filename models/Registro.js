@@ -21,6 +21,11 @@ const Registro = db.define('registro', {
         type: DataTypes.BOOLEAN,
         allowNull: false,
         defaultValue: true
+    },
+    alumnos: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+        defaultValue: 0
     }
 }, {
     freezeTableName: true

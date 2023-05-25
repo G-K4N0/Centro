@@ -11,7 +11,7 @@ const Materia = db.define("materia", {
   name: {
     type: DataTypes.STRING,
     allowNull: false,
-  },
+  }
 },{
   freezeTableName:true
 });
