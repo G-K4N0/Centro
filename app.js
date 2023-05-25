@@ -3,7 +3,6 @@ import cors from "cors";
 import db from "./database/db.js";
 import fileUpload from "express-fileupload";
 import bcrypt from "bcryptjs";
-import moment from 'moment';
 import { DateTime } from "luxon";
 
 import dotenv from "dotenv";
@@ -114,6 +113,7 @@ async function main() {
               { name: "Ing. Sistemas Computacionales" },
               { name: "Ing. Eléctrica" },
               { name: "Ing. Mecatrónica" },
+              { name: "Ing. Industrial" },
             ],
             { fields: ["name"] }
           );
