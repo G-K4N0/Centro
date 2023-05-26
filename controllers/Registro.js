@@ -122,7 +122,10 @@ export const createRegister = async (req, res) => {
     const horaActual = DateTime.local().setZone('America/Mexico_City')
     const horasClase = finaliza.diff(horaActual)
 
-const estaEnHorario = horaActual.isAfter(inicia) && horaActual.isBefore(finaliza);
+    const diffInicia = horaActual.diff(inicia).as('milliseconds');
+    const diffFinaliza = horaActual.diff(finaliza).as('milliseconds');
+    const estaEnHorario = diffInicia > 0 && diffFinaliza < 0;
+
     const duracion = horasClase.as('milliseconds');
 
       const idLab = horario.idLab;
