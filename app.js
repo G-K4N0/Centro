@@ -37,8 +37,6 @@ import Carrera from "./models/Carrera.js";
 import Lab from "./models/Lab.js";
 import Semestre from "./models/Semestre.js";
 
-DateTime.local().setZone('America/Mexico_City');
-
 const app = express();
 const PORT = process.env.PORT || 8080;
 
@@ -49,6 +47,9 @@ const administratorPriv = process.env.ADMIN_PRIV;
 
 const priv_name = process.env.PRIV_NAME;
 const priv_user = process.env.PRIV_USER;
+
+app.locals.DateTime = DateTime;
+app.locals.mexicoCityZone = DateTime.local().setZone('America/Mexico_City');
 
 app.use(credentials);
 app.use(cookieParser());
