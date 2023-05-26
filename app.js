@@ -50,6 +50,7 @@ const priv_user = process.env.PRIV_USER;
 
 app.locals.DateTime = DateTime;
 app.locals.mexicoCityZone = DateTime.local().setZone('America/Mexico_City');
+export const mexicoZone = app.locals.mexicoCityZone
 
 app.use(credentials);
 app.use(cookieParser());

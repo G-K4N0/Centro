@@ -13,6 +13,7 @@ import Fase from "../models/Fase.js";
 import db from '../database/db.js'
 import { QueryTypes } from "sequelize";
 import { DateTime } from "luxon";
+import { mexicoZone } from '../app.js'
 
 export const getAllRegisters = async (req, res) => {
   try {
@@ -117,9 +118,9 @@ export const createRegister = async (req, res) => {
   try {
     const horario = await Horario.findByPk(idHorario);
 
-    const inicia = DateTime.fromFormat(horario.inicia, 'HH:mm')
-    const finaliza = DateTime.fromFormat(horario.finaliza, 'HH:mm')
-    const horaActual = DateTime.local()
+    const inicia = DateTime.fromFormat(horario.inicia, 'HH:mm', {zone: 'America/Mexico_City'})
+    const finaliza = DateTime.fromFormat(horario.finaliza, 'HH:mm', {zone: 'America/Mexico_City'})
+    const horaActual = mexicoZone
     
     const horasClase = finaliza.diff(horaActual)
 
