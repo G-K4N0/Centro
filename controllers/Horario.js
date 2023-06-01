@@ -7,7 +7,7 @@ import Semestre from '../models/Semestre.js';
 import Carrera from '../models/Carrera.js';
 import Tipo from '../models/Tipo.js'
 import db from '../database/db.js'
-import { QueryTypes, Op } from 'sequelize';
+import { QueryTypes, Op, and } from 'sequelize';
 import { DateTime } from "luxon";
 
 export const getTimesbyLabs = async (req, res) => {
@@ -59,11 +59,11 @@ export const getTimesbyDocentes = async (req, res) => {
         const day = now.setLocale('es').toFormat('cccc');
         const capitalizedDay = day.charAt(0).toUpperCase() + day.slice(1);
         const idUser = parseInt(req.params.id);
-        
+
         const data = await db.query(
             `CALL GetHorarioByDocentes(${idUser}, '${capitalizedDay}')`,
         );
-        
+
         res.json(data);
     } catch (error) {
         res.json(error.message);
@@ -150,7 +150,7 @@ export const getTimesByDays = async (req, res) => {
         JOIN lab on idLab=lab.id 
         JOIN usuario on idUsuario=usuario.id 
         where dia='${capitalizedDay}'`
-        ,{type: QueryTypes.SELECT})
+            , { type: QueryTypes.SELECT })
         res.json(consulta)
     } catch (error) {
         res.json(error)
@@ -198,41 +198,52 @@ export const createTime = async (req, res) => {
         const inputFinaliza = parseInt(finaliza.replace(':', ''))
 
         if (inputInicia === inputFinaliza) {
-            return res.status(200).json({message: 'No puedes agregar la misma hora para el inicio y la finalización'})
+            return res.status(200).json({ message: 'No puedes agregar la misma hora para el inicio y la finalización' })
         }
 
         if (inputFinaliza < inputInicia) {
-            return res.status(200).json({message: 'No puedes agregar una hora de finalización pasada'})
+            return res.status(200).json({ message: 'No puedes agregar una hora de finalización pasada' })
         }
         const labs = await Horario.findAll({
-            attributes: ['id', 'inicia', 'finaliza', 'dia', 'idLab', 'idUsuario'],
+            attributes: ['id', 'inicia', 'finaliza', 'dia', 'idLab', 'idUsuario', 'actual'],
             where: { idLab }
-          });
-          
-          if (labs.length > 0) {
-            const overlappingLab = labs.find(lab => {
-              const iniciaStored = parseInt(lab.inicia.replace(':', ''));
-              const finalizaStored = parseInt(lab.finaliza.replace(':', ''));
-          
-              const iniciaOverlap = inputInicia < finalizaStored && iniciaStored < inputFinaliza;
-              const finalizaOverlap = inputFinaliza > iniciaStored && finalizaStored > inputInicia;
-          
-              return lab.dia.includes(dia) && (iniciaOverlap || finalizaOverlap);
+        });
+
+        if (labs.length > 0) {
+            const overlappingLab = labs.filter(lab => {
+                const iniciaStored = parseInt(lab.inicia.replace(':', ''));
+                const finalizaStored = parseInt(lab.finaliza.replace(':', ''));
+
+                const iniciaOverlap = inputInicia < finalizaStored && iniciaStored < inputFinaliza;
+                const finalizaOverlap = inputFinaliza > iniciaStored && finalizaStored > inputInicia;
+
+                return lab.dia.includes(dia) && (iniciaOverlap || finalizaOverlap) && lab.actual !== false;
             });
-          
-            if (overlappingLab) {
-              return res.json({ message: 'Existe un horario que ya incluye una de las horas ingresadas', encontrado: true });
+
+            if (overlappingLab.length > 0) {
+                return res.json({ message: 'Existe un horario que ya incluye una de las horas ingresadas', encontrado: true, existente: overlappingLab });
             }
-          }
-          
-          const overlappingLabWithDifferentUser = await Horario.findOne({
-            attributes: ['id', 'inicia', 'finaliza', 'dia', 'idLab', 'idUsuario'],
-            where: { dia,inicia,finaliza , idLab: { [Op.ne]: idLab }, idUsuario }
-          });
-          
-          if (overlappingLabWithDifferentUser) {
-            return res.json({ message: 'El usuario tiene asignado el mismo horario en el mismo día en otro laboratorio', encontrado: true });
-          }                    
+        }
+
+        const overlappingLabWithDifferentUser = await Horario.findOne({
+            attributes: ['id', 'inicia', 'finaliza', 'dia', 'idLab', 'idUsuario', 'actual'],
+            where: {
+                dia,
+                inicia,
+                finaliza,
+                idLab: { [Op.ne]: idLab },
+                idUsuario,
+                actual: { [Op.not]: false }
+            }
+        });
+
+        if (overlappingLabWithDifferentUser) {
+            return res.json({
+                message: 'El usuario tiene asignado el mismo horario en el mismo día en otro laboratorio',
+                encontrado: true,
+                overlappingLabWithDifferentUser
+            });
+        }
 
         await Horario.create(req.body);
         res.json({
@@ -278,7 +289,7 @@ export const updateTime = async (req, res) => {
                 if (dia.id !== id) {
                     const iniciaStored = parseInt((dia.inicia.split(':')[0]) + (dia.inicia.split(':')[1]));
                     const finalizaStored = parseInt((dia.finaliza.split(':')[0]) + (dia.finaliza.split(':')[1]));
-                    
+
                     const iniciaEqual = (inputInicia === iniciaStored && inputFinaliza === finalizaStored);
                     const iniciaProblem = (inputInicia > iniciaStored && inputInicia < finalizaStored);
                     const finalizaProblem = (inputFinaliza > iniciaStored && inputFinaliza < finalizaStored);
@@ -308,21 +319,21 @@ export const updateTime = async (req, res) => {
 
 export const updateManyTimesActual = async (req, res) => {
     try {
-      const { ids, actual } = req.body
+        const { ids, actual } = req.body
+        if (!ids || !actual) {
+            return res.status(400).json({ message: 'Faltan parámetros requeridos' })
+        }
+        const idsArray = ids.split(',').map(id => parseInt(id));
 
-      if (!ids || !actual) {
-        return res.status(400).json({ message: 'Faltan parámetros requeridos' })
-      }
-  
-      await Horario.update({ actual }, { where: { id: ids } })
-  
-      res.status(200).json({ message: 'Horarios actualizados' })
+        await Horario.update({ actual }, { where: { id: idsArray } })
+
+        res.status(200).json({ message: 'Horarios actualizados' })
     } catch (error) {
-      console.error(error)
-      res.status(500).json({ message: 'Error al actualizar los horarios' })
+        console.error(error)
+        res.status(500).json({ message: 'Error al actualizar los horarios', error })
     }
-  }
-  
+}
+
 
 export const deleteTime = async (req, res) => {
     try {

@@ -50,7 +50,7 @@ export const createReport = async (req, res) => {
             "message" : "Reporte creado"
         });
     } catch (error) {
-        
+        res.json({error})
     }
 }
 
