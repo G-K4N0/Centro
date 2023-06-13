@@ -194,10 +194,10 @@ export const createTime = async (req, res) => {
     try {
         const { inicia, finaliza, dia, idLab, idUsuario } = req.body
 
-        const inputInicia = parseInt(inicia.replace(':', ''))
-        const inputFinaliza = parseInt(finaliza.replace(':', ''))
+        const inputInicia = DateTime.fromFormat(inicia, 'hh:mm a', {zone: 'America/Mexico_City'})
+        const inputFinaliza = DateTime.fromFormat(finaliza, 'hh:mm a', {zone: 'America/Mexico_City'})
 
-        if (inputInicia === inputFinaliza) {
+        if (inputInicia.equals(inputFinaliza)) {
             return res.status(200).json({ message: 'No puedes agregar la misma hora para el inicio y la finalización' })
         }
 
@@ -211,8 +211,8 @@ export const createTime = async (req, res) => {
 
         if (labs.length > 0) {
             const overlappingLab = labs.filter(lab => {
-                const iniciaStored = parseInt(lab.inicia.replace(':', ''));
-                const finalizaStored = parseInt(lab.finaliza.replace(':', ''));
+                const iniciaStored = DateTime.fromFormat(lab.inicia, 'hh:mm a', {zone:'America/Mexico_City'});
+                const finalizaStored = DateTime.fromFormat(lab.finaliza, 'hh:mm a', {zone:'America/Mexico_City'});
 
                 const iniciaOverlap = inputInicia < finalizaStored && iniciaStored < inputFinaliza;
                 const finalizaOverlap = inputFinaliza > iniciaStored && finalizaStored > inputInicia;
@@ -249,7 +249,6 @@ export const createTime = async (req, res) => {
         res.json({
             "message": "Horario creado"
         });
-
     } catch (error) {
         res.json({
             "message": error.message

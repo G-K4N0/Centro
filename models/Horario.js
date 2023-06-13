@@ -44,7 +44,8 @@ const Horario = db.define(
     },
   },
   {
-    freezeTableName: true
+    freezeTableName: true,
+    timezone: "-06:00"
   }
 );
 
