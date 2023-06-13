@@ -1,7 +1,8 @@
 import db from '../database/db.js'
 import { DataTypes } from 'sequelize'
 import Horario from './Horario.js'
-
+import Actividad from './Actividad.js'
+import SinHorario from './SinHorario.js'
 const Registro = db.define('registro', {
     id: {
         type: DataTypes.INTEGER,
@@ -10,12 +11,15 @@ const Registro = db.define('registro', {
     },
     idHorario:{
       type:DataTypes.INTEGER,
-      allowNull:false,  
+      allowNull:true,  
     },
-    actividad: {
-        type: DataTypes.STRING,
-        allowNull: false,
-        defaultValue: 'Clase'
+  idSinHorario: {
+    type: DataTypes.INTEGER,
+    allowNull: true,
+  },
+    idActividad: {
+        type: DataTypes.INTEGER,
+        allowNull: false
     },
     enHorario: {
         type: DataTypes.BOOLEAN,
@@ -28,11 +32,23 @@ const Registro = db.define('registro', {
         defaultValue: 0
     }
 }, {
-    freezeTableName: true
+    freezeTableName: true,
+    timezone: "-06:00"
 })
 
 Registro.belongsTo(Horario, {
     foreignKey: 'idHorario',
     targetKey: 'id'
 })
+
+Registro.belongsTo(Actividad, {
+  foreignKey: 'idActividad',
+  targetKey:'id'
+})
+
+Registro.belongsTo(SinHorario, {
+  foreignKey: 'idSinHorario',
+  targetKey:'id'
+})
+
 export default Registro

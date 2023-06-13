@@ -1,6 +1,7 @@
 import { Router } from "express"
 import {
   createRegister,
+  createRegisterWithOutHorario,
   getAllRegisters,
   getRegister,
   getCountRegistersByActivities,
@@ -25,6 +26,7 @@ Registro.get("/conteo/mes", getCountRegistersByMonth)
 Registro.get("/conteo/semanas", getCountRegistersByWeek)
 Registro.get("/:id", verifyToken, getRegister)
 Registro.post("/create/", createRegister)
+Registro.post("/create/whitout",createRegisterWithOutHorario)
 Registro.put("/complete/:id", updateRegister)
 
 export default Registro

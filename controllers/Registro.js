@@ -8,6 +8,7 @@ import Horario from "../models/Horario.js";
 import Grupo from "../models/Grupo.js";
 import Modalidad from "../models/Modalidad.js";
 import Privilegio from "../models/Privilegio.js";
+import SinHorario from "../models/SinHorario.js";
 import Tipo from "../models/Tipo.js";
 import Fase from "../models/Fase.js";
 import db from '../database/db.js'
@@ -18,7 +19,7 @@ import { mexicoZone } from '../app.js'
 export const getAllRegisters = async (req, res) => {
   try {
     const registers = await Registro.findAll({
-      attributes: ['id','enHorario', 'actividad', 'createdAt','alumnos'],
+      attributes: ['id', 'enHorario', 'actividad', 'createdAt', 'alumnos'],
       include: [
         {
           model: Horario,
@@ -112,16 +113,16 @@ export const getRegister = async (req, res) => {
 };
 
 export const createRegister = async (req, res) => {
-  const { idHorario, actividad, laboratorio } = req.body;
+  const { idHorario, idActividad, laboratorio } = req.body;
   let message = '';
   let id = null
   try {
     const horario = await Horario.findByPk(idHorario);
 
-    const inicia = DateTime.fromFormat(horario.inicia, 'HH:mm', {zone: 'America/Mexico_City'})
-    const finaliza = DateTime.fromFormat(horario.finaliza, 'HH:mm', {zone: 'America/Mexico_City'})
+    const inicia = DateTime.fromFormat(horario.inicia, 'hh:mm a', { zone: 'America/Mexico_City' })
+    const finaliza = DateTime.fromFormat(horario.finaliza, 'hh:mm a', { zone: 'America/Mexico_City' })
     const horaActual = mexicoZone
-    
+
     const horasClase = finaliza.diff(horaActual)
 
     const diffInicia = horaActual.diff(inicia).as('milliseconds');
@@ -130,38 +131,34 @@ export const createRegister = async (req, res) => {
 
     const duracion = horasClase.as('milliseconds');
 
-      const idLab = horario.idLab;
+    const idLab = horario.idLab;
 
-      const lab = await Lab.findByPk(idLab);
+    const lab = await Lab.findByPk(idLab);
 
-      if (lab.name !== laboratorio) {
-        message = 'No es el laboratorio asignado'
-      } else if(!estaEnHorario) {
-        message = 'No es la hora asignada'
-      } else if (lab.ocupado) {
-        message = 'El laboratorio aún está ocupado';
-      } else if(estaEnHorario) {
-        await lab.update({ ocupado: true });
+    if (lab.name !== laboratorio) {
+      message = 'No es el laboratorio asignado'
+    } else if (!estaEnHorario) {
+      message = 'No es la hora asignada'
+    } else if (lab.ocupado) {
+      message = 'El laboratorio aún está ocupado';
+    } else if (estaEnHorario) {
+      await lab.update({ ocupado: true });
 
-        const registro = await Registro.create({
-          idHorario,
-          actividad
-        }, { returning: true });
+      const registro = await Registro.create({
+        idHorario,
+        idActividad
+      }, { returning: true });
 
-        const tiempoDesocupado = duracion;
-        setTimeout(async () => {
-          await lab.update({ ocupado: false });
-        }, tiempoDesocupado);
+      const tiempoDesocupado = duracion;
+      setTimeout(async () => {
+        await lab.update({ ocupado: false });
+      }, tiempoDesocupado);
 
-        /*const tiempoMensaje = duracion * 3400;
-        setTimeout(() => {
-          message = `El laboratorio ${idLab} se desocupará en 10 segundos`;
-        }, tiempoDesocupado - tiempoMensaje);*/
-        id = registro.id
-        message = 'Registro creado exitosamente';
-      }else {
-        message='No es el horario indicado'
-      }
+      id = registro.id
+      message = 'Registro creado exitosamente';
+    } else {
+      message = 'No es el horario indicado'
+    }
 
   } catch (error) {
     console.error(error);
@@ -169,17 +166,95 @@ export const createRegister = async (req, res) => {
     res.status(500);
   }
   if (id != null) {
-    res.json({ message, id });  
+    res.json({ message, id });
   } else {
     res.json({ message });
   }
 };
 
+export const createRegisterWithOutHorario = async (req, res) => {
+  const { inicia, finaliza, dia, idGrupo, idMateria, laboratorio, idUsuario, idActividad } = req.body
+  let message = ''
+  let id = null
+  try {
+    const _inicia = DateTime.fromFormat(inicia, 'hh:mm a', { zone: 'America/Mexico_City' })
+    const _finaliza = DateTime.fromFormat(finaliza, 'hh:mm a', { zone: 'America/Mexico_City' })
+    const horaActual = mexicoZone
+
+    const horasClase = _finaliza.diff(horaActual)
+    const duracion = horasClase.as('milliseconds')
+
+    if (_inicia.equals(_finaliza)) {
+      return res.status(200).json({ message: 'No puedes agregar la misma hora para el inicio y la finalización' })
+  }
+
+  if (_finaliza < _inicia) {
+    return res.status(200).json({ message: 'No puedes agregar una hora de finalización pasada' })
+}
+
+const lab = await Lab.findOne({
+  where: {
+    name: laboratorio
+  }
+})
+
+    if (lab.name !== laboratorio) {
+      message = 'Escanee el QR correspondiente al laboratorio'
+    } else if (lab.ocupado) {
+      message = 'El laboratorio aún está ocupado'
+    } else {
+
+      const idLab = lab.id
+      const registerCreate = await SinHorario.create(
+        {
+          inicia: inicia,
+          finaliza: finaliza,
+          dia,
+          idGrupo,
+          idMateria,
+          idLab,
+          idUsuario
+        }, { returning: true })
+  
+      const idSinHorario = registerCreate.id
+    
+      await lab.update({ ocupado: true })
+      const registro = await Registro.create(
+        {
+          idSinHorario,
+          idActividad,
+          enHorario: false
+        },
+        { returning: true })
+      const tiempoDesocupado = duracion
+      setTimeout(async () => {
+        await lab.update({ ocupado: false })
+      }, tiempoDesocupado)
+
+
+      id = registro.id
+      message = 'Registro creado exitosamente'
+    }
+  } catch (error) {
+    console.log(error)
+    message = `No se pudo crear el registro, intente mas tarde ${error}`
+    res.status(500)
+  }
+  if (id != null) {
+    res.json({ message, id })
+  } else {
+    res.json({ message })
+  }
+}
+
 export const getCountRegistersByActivities = async (req, res) => {
   try {
-    const total = await db.query(`SELECT actividad AS name,count(actividad) AS value  FROM registro  
-    JOIN horario on idHorario = horario.id  
-    GROUP BY actividad`, { type: QueryTypes.SELECT })
+    const total = await db.query(`SELECT actividad.name AS name,
+    COUNT(actividad.id) AS value
+    FROM registro 
+    JOIN actividad 
+    ON idActividad = actividad.id 
+    GROUP BY actividad.id`, { type: QueryTypes.SELECT })
     res.json(total)
   } catch (error) {
     console.error(error);
@@ -233,6 +308,21 @@ export const getCountRegistersByLabs = async (req, res) => {
     res.json(error);
   }
 };
+
+export const getCountRegisterByLabswithOutSchedule = async(req,res) => {
+  try{
+    const total = await db.query(`SELECT lab.name ,count(lab.name) as value 
+    FROM registro  
+    JOIN sinHorario 
+    on idSinHorario = sinHorario.id 
+    JOIN lab on idLab = lab.id  
+    GROUP BY lab.name`, {type: QueryTypes.SELECT})
+
+    res.json({total})
+  }catch(error){
+    res.json(error)
+  }
+}
 
 
 export const getCountRegistersByCarreras = async (req, res) => {
@@ -293,8 +383,8 @@ export const updateRegister = async (req, res) => {
 
     await registerToUppdate.save()
 
-    res.json({"message": "El registro a sido completado"})
+    res.json({ "message": "El registro a sido completado" })
   } catch (error) {
-    res.json({message: error.message})
+    res.json({ message: error.message })
   }
 }
