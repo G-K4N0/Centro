@@ -10,7 +10,9 @@ dotenv.config({ path: "./.env" });
 
 import Usuario from "./models/Usuario.js";
 import Privilegio from "./models/Privilegio.js";
+import Actividad from "./models/Actividad.js"
 
+import routerActividad from "./routes/Actividad.js"
 import careerRoutes from "./routes/Carrera.js";
 import groupRoutes from "./routes/Grupo.js";
 import labRoutes from "./routes/Lab.js";
@@ -48,8 +50,8 @@ const administratorPriv = process.env.ADMIN_PRIV;
 const priv_name = process.env.PRIV_NAME;
 const priv_user = process.env.PRIV_USER;
 
-app.locals.DateTime = DateTime;
-app.locals.mexicoCityZone = DateTime.local().setZone('America/Mexico_City');
+app.locals.DateTime = DateTime.local().setZone('utc-06:00');
+app.locals.mexicoCityZone = DateTime.local().setZone('utc-06:00');
 export const mexicoZone = app.locals.mexicoCityZone
 
 app.use(credentials);
@@ -64,6 +66,7 @@ app.use(
   })
 );
 
+app.use("/actividades", routerActividad)
 app.use("/refresh", refreshRouter);
 app.use("/carreras", careerRoutes);
 app.use("/grupos", groupRoutes);
@@ -154,6 +157,13 @@ async function main() {
 
           await admin.save();
 
+          const actividades = await Actividad.bulkCreate(
+            [
+              {name: "Clase"},
+              {name: "Práctica"},
+              {name: "Examen"},
+            ], {fields: ["name"]}
+          )
           console.log("Usuario Administrador creado");
         }
       }
