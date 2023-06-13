@@ -11,7 +11,8 @@ const sequelize = new Sequelize(
             dialect: 'mysql',
           dialectOptions: 
             {
-              connectTimeout: 60000
+              connectTimeout: 60000,
+              timezone: "-06:00"
             }
         }
 );

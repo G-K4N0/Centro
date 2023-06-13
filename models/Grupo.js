@@ -1,7 +1,6 @@
 import db from "../database/db.js";
 import { DataTypes } from "sequelize";
 import Horario from "./Horario.js";
-import SinHorario from "./SinHorario.js";
 
 const Grupo = db.define("grupo",{
     id:{
@@ -40,7 +39,8 @@ const Grupo = db.define("grupo",{
       defaultValue: true
     },
 },{
-    freezeTableName:true
+    freezeTableName:true,
+    timezone: "-06:00"
 });
 
 Grupo.hasMany(Horario,{

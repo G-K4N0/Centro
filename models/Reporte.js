@@ -32,7 +32,8 @@ const Reporte = db.define('reporte',{
         
     }
 },{
-    freezeTableName:true
+    freezeTableName:true,
+    timezone: "-06:00"
 });
 
 export default Reporte

@@ -32,7 +32,8 @@ const Usuario = db.define('usuario',{
     }
 },{
     freezeTableName:true,
-    timestamps:true
+    timestamps:true,
+    timezone: "-06:00"
 });
 
 Usuario.hasMany(Horario,{

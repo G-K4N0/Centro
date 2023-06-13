@@ -1,6 +1,5 @@
 import db from "../database/db.js";
 import { DataTypes } from "sequelize";
-import Usuario from "./Usuario.js";
 
 const Aviso = db.define(
   "aviso",
@@ -17,10 +16,15 @@ const Aviso = db.define(
     detalles: {
       type: DataTypes.STRING,
       allowNull: false
+    },
+    fecha: {
+      type: DataTypes.DATE,
+      allowNull: false,
     }
   },
   {
-    freezeTableName: true
+    freezeTableName: true,
+    timezone: "-06:00"
   }
 );
 

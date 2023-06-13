@@ -61,8 +61,7 @@ export const login = async (req, res) => {
 
     const cookiesOptions = {
       expires: new Date(Date.now() + process.env.JWT_COOKIE_EXPIRES * 24 * 60 * 60 * 1000),
-      httpOnly: true,
-      sameSite: 'Lax'
+      httpOnly: true
     };
     res.cookie('token', refreshToken, cookiesOptions);
 
@@ -128,8 +127,7 @@ export const logout = (req, res) => {
 
   const cookiesOptions = {
     expires: new Date(0),
-    httpOnly: true,
-    sameSite: 'Lax'
+    httpOnly: true
   };
 
   res.clearCookie('token');
