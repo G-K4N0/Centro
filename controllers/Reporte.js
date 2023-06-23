@@ -1,15 +1,19 @@
 import reportModel from "../models/Reporte.js"
 import Usuario from "../models/Usuario.js"
-
+import Lab from "../models/Lab.js"
 export const getAllReports = async (req, res) => {
     try {
         const reports = await reportModel.findAll({
-            attributes:['id','problema','descripcion','createdAt','idLab'],
+            attributes:['id','problema','descripcion','createdAt','idLab','revisado'],
             include: [
                 {
                     model: Usuario,
                     attributes: ['name']
-                }
+                },
+              {
+                model: Lab,
+                attributes: ['name']
+              }
             ]
         });
         res.json(reports);

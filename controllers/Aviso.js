@@ -1,15 +1,29 @@
 import Aviso from '../models/Aviso.js'
 import { DateTime } from 'luxon';
-import  cron from 'node-cron'
+import cron from 'node-cron'
 
 export const getAllAvisos = async (req, res) => {
     try {
         const avisos = await Aviso.findAll({
-            attributes:['titulo', 'detalles','fecha','createdAt']
+            attributes: ['titulo', 'detalles', 'fecha', 'createdAt', 'visible'],
+            where: {
+                visible: true
+            }
         });
         res.status(200).json(avisos)
     } catch (error) {
         res.status(500).json({ error: 'No se pudo obtener la lista de avisos.' })
+    }
+}
+
+export const getAvisosForAdmin = async (req,res)=>{
+    try {
+        const avisos = await Aviso.findAll(
+            {attributes :['id','titulo','detalles','createdAt']}
+        )
+        res.status(200).json(avisos)
+    } catch (error) {
+        res.status(500).json({error: 'Hubo un error, intentalo mas tarde'})
     }
 }
 
@@ -31,37 +45,37 @@ export const getAviso = async (req, res) => {
 
 export const createAviso = async (req, res) => {
     try {
-      const { titulo, detalles, fecha } = req.body;
-      const now = DateTime.now()
-      const expiracion = DateTime.fromISO(fecha).endOf('day')
-  
-      const aviso = await Aviso.create({
-        titulo,
-        detalles,
-        fecha: expiracion.toISO(),
-      });
-  
-      const tiempoRestante = expiracion.diff(now, 'milliseconds').milliseconds;
-  
-      if (tiempoRestante <= 0) {
-        eliminarAviso(aviso.id);
-      } else {
-        const cronTime = `0 0 * * *`;
-        cron.schedule(cronTime, () => {
-          eliminarAviso(aviso.id);
-        });
-      }
+        const { titulo, detalles, fecha } = req.body;
+        const now = DateTime.now()
+        const expiracion = DateTime.fromISO(fecha).endOf('day')
 
-      const aIso= expiracion.toISO()
-      res.status(201).json({ success: true, now, aIso});
+        const aviso = await Aviso.create({
+            titulo,
+            detalles,
+            fecha: expiracion.toISO(),
+        });
+
+        const tiempoRestante = expiracion.diff(now, 'milliseconds').milliseconds;
+
+        if (tiempoRestante <= 0) {
+            eliminarAviso(aviso.id);
+        } else {
+            const cronTime = `0 0 * * *`;
+            cron.schedule(cronTime, () => {
+                eliminarAviso(aviso.id);
+            });
+        }
+
+        const aIso = expiracion.toISO()
+        res.status(201).json({ success: true, now, aIso });
     } catch (error) {
-      console.error(error);
-      res.status(500).json({ success: false, error: 'No se pudo crear el aviso.' });
+        console.error(error);
+        res.status(500).json({ success: false, error: 'No se pudo crear el aviso.' });
     }
-  };
-  
-  
-  
+};
+
+
+
 export const updateAviso = async (req, res) => {
     try {
         const aviso = await Aviso.findOne({
@@ -97,11 +111,18 @@ export const deleteAviso = async (req, res) => {
 
 const eliminarAviso = async (avisoId) => {
     try {
-      await Aviso.findByIdAndDelete(avisoId);
-      console.log(`Se eliminó el aviso con ID: ${avisoId}`);
-    } catch (error) {
-      console.error(`Error al eliminar el aviso con ID: ${avisoId}`, error);
-    }
-  };
+        const toUpdate = {
+            visible: false
+        }
 
-  
+        await Aviso.update(toUpdate, {
+            where: {
+                id: avisoId
+            }
+        });
+        console.log(`Se ha ocultado el aviso con ID: ${avisoId}`);
+    } catch (error) {
+        console.error(`Error al eliminar el aviso con ID: ${avisoId}`, error);
+    }
+};
+

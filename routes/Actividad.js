@@ -4,6 +4,6 @@ import { getActividades, createActividades } from '../controllers/Actividad.js'
 const routerActividad = Router()
 
 routerActividad.get("/", getActividades)
-routerActividad.get("/create", createActividades)
+routerActividad.post("/create", createActividades)
 
 export default routerActividad

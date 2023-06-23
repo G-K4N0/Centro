@@ -156,6 +156,33 @@ export const getTimesByDays = async (req, res) => {
         res.json(error)
     }
 }
+
+export const getTimesByDaysAndLabs = async (req, res) => {
+  try {
+    const now = DateTime.local()
+    const day = now.setLocale('es').toFormat('cccc')
+    const capitalizedDay = day.charAt(0).toUpperCase() + day.slice(1)
+    const id = parseInt(req.params.id)
+
+const consulta = await db.query(`
+  SELECT dia, inicia, finaliza, carrera.name AS carrera, grupo.name AS grupo,
+    materia.name AS materia, lab.name AS laboratorio, lab.ocupado AS ocupado,
+    usuario.name AS docente, usuario.image AS image
+  FROM horario
+  JOIN grupo ON idGrupo = grupo.id
+  JOIN carrera ON idCarrera = carrera.id
+  JOIN materia ON idMateria = materia.id
+  JOIN lab ON idLab = lab.id
+  JOIN usuario ON idUsuario = usuario.id
+  WHERE dia = '${capitalizedDay}' AND lab.id = ${id}
+`, { type: QueryTypes.SELECT } )
+
+    res.json(consulta)
+
+  } catch (error) {
+   res.json(error) 
+  }
+}
 export const getTime = async (req, res) => {
     try {
         const horario = await Horario.findOne({

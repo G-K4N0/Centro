@@ -42,8 +42,6 @@ export const createLab = async (req, res) => {
     }
 }
 
-import Lab from "../models/Lab.js";
-
 export const updateLabOcupado = async (req, res) => {
   const { id } = req.params;
   const { ocupado } = req.body;

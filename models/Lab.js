@@ -2,7 +2,7 @@ import db from "../database/db.js";
 import { DataTypes } from "sequelize";
 import Horario from "./Horario.js";
 import SinHorario from "./SinHorario.js";
-
+import Reporte from "./Reporte.js"
 const Lab = db.define(
   "lab",
   {
@@ -36,4 +36,9 @@ Horario.belongsTo(Lab, {
   foreignKey: "idLab",
   targetId: "id",
 });
+
+Reporte.belongsTo(Lab,{
+  foreignKey: "idLab",
+  targetId: "id"
+})
 export default Lab;

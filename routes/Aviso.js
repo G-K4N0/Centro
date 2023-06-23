@@ -1,6 +1,7 @@
 import { Router } from "express"
 import {
   getAllAvisos,
+  getAvisosForAdmin,
   getAviso,
   createAviso,
   updateAviso,
@@ -11,6 +12,7 @@ import { verifyToken, isAdmin } from "../controllers/authController.js"
 const routerAviso = Router()
 
 routerAviso.get("/", getAllAvisos)
+routerAviso.get("/avisos", verifyToken, isAdmin,getAvisosForAdmin)
 routerAviso.get("/:id", getAviso)
 routerAviso.post("/", verifyToken, isAdmin, createAviso)
 routerAviso.put("/:id", verifyToken, isAdmin, updateAviso)

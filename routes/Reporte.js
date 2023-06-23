@@ -10,10 +10,10 @@ import { verifyToken, isAdmin } from "../controllers/authController.js"
 
 const routeReport = Router()
 
-routeReport.get("/", getAllReports)
-routeReport.get("/:id", verifyToken, getReport)
-routeReport.post("/", createReport)
-routeReport.put("/:id", verifyToken, updateReport)
-routeReport.delete("/:id", verifyToken, deleteReport)
+routeReport.get("/", verifyToken, isAdmin, getAllReports)
+routeReport.get("/:id", verifyToken, isAdmin, getReport)
+routeReport.post("/", verifyToken, createReport)
+routeReport.put("/:id", verifyToken, isAdmin, updateReport)
+routeReport.delete("/:id", verifyToken, isAdmin, deleteReport)
 
 export default routeReport

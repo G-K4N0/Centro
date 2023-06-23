@@ -20,6 +20,10 @@ const Aviso = db.define(
     fecha: {
       type: DataTypes.DATE,
       allowNull: false,
+    },
+    visible:{
+      type :DataTypes.BOOLEAN ,
+      defaultValue:true
     }
   },
   {

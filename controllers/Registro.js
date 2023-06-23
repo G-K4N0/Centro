@@ -318,7 +318,7 @@ export const getCountRegisterByLabswithOutSchedule = async(req,res) => {
     JOIN lab on idLab = lab.id  
     GROUP BY lab.name`, {type: QueryTypes.SELECT})
 
-    res.json({total})
+    res.json(total)
   }catch(error){
     res.json(error)
   }

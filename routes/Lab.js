@@ -13,8 +13,8 @@ const labRoute = Router()
 labRoute.get("/", getAllLabs)
 labRoute.get("/:id", getLab)
 labRoute.post("/", verifyToken, isAdmin, createLab)
-labRoute.put("/:id", updateLab)
-labRoute.put("/ocupar/:id", updateLabOcupado)
+labRoute.put("/:id", verifyToken,updateLab)
+labRoute.put("/ocupar/:id", verifyToken ,updateLabOcupado)
 labRoute.delete("/:id", verifyToken, isAdmin, deleteLab)
 
 export default labRoute
